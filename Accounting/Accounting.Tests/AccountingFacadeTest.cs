@@ -9,18 +9,11 @@ using System.Linq;
 
 namespace Accounting.Tests
 {
-
   [TestClass]
-  public class AccountingFacadeTest 
+  public class AccountingFacadeTest : DbContextTest<AccountingDbContext>
   {
-    public static string connString = @"Server=.\SQLEXPRESS;Database=Accounting.Testdb;Trusted_connection=true";
-
-    [TestInitialize]
-    public void Init()
+    protected override void AfterDbContextIntialization()
     {
-      Database.SetInitializer<AccountingDbContext>(new DropCreateDatabaseAlways<AccountingDbContext>());
-      this.Context = new AccountingDbContext(connString);
-      Context.Database.CreateIfNotExists();
       uut = new AccountingFacade()
       {
         Accounts = new RepositoryBase<Account>(Context)
@@ -32,6 +25,7 @@ namespace Accounting.Tests
     {
       Assert.IsTrue(Context.Database.Exists());
     }
+
     [TestMethod]
     public void OpenAccount()
     {
@@ -51,7 +45,6 @@ namespace Accounting.Tests
 
     }
 
-    public AccountingDbContext Context { get; set; }
 
     public IAccountingFacade uut { get; set; }
   }

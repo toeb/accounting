@@ -58,6 +58,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AccountingFacadeTest.cs" />
+    <Compile Include="DbContextTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
