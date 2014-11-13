@@ -28,7 +28,7 @@ namespace Accounting.Tests
     /// This test ensures that an account can be opened when specifying an accountname and number
     /// </summary>
     [TestMethod]
-    public void OpenAccount()
+    public void ShouldOpenAnAccountWithNameAndNumber()
     {
       // arrange
       var uut = Require<IAccountingFacade>();
@@ -40,7 +40,7 @@ namespace Accounting.Tests
       // act
       uut.OpenAccount(command);
 
-      Context.SaveChanges();
+      Context.SaveChanges(); // Question  should the repository save this automatically?
 
       // assert
       Assert.IsNotNull(command.Account);
@@ -49,6 +49,24 @@ namespace Accounting.Tests
 
     }
 
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes=true)]
+    public void OpenAccountShouldFailIfAccountNumberAlreadyExists()
+    {
+      //arrange
+      var uut = Require<IAccountingFacade>();
+
+      var accounts = Require<IRepository<Account>>();
+      accounts.Insert(new Account() { 
+        Number = "123"
+      });
+
+      Context.SaveChanges();
+
+      // act
+      uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
+    }
 
   }
 }
