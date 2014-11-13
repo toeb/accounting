@@ -11,6 +11,7 @@ using System.ComponentModel.Composition;
 
 namespace Accounting.Tests
 {
+
   public class TestBase :DbContextTest<AccountingDbContext>
   {
 

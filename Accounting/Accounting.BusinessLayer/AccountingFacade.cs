@@ -7,6 +7,9 @@ using System.Text;
 
 namespace Accounting.BusinessLayer
 {
+
+  
+
   [Export(typeof(IAccountingFacade))]
   public class AccountingFacade : IAccountingFacade
   {

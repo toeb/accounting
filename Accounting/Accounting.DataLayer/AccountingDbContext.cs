@@ -19,7 +19,7 @@ namespace Accounting.DataLayer
 
 
     public IDbSet<Transaction> Transactions { get; set; }
-   // public IDbSet<Meta> Transactions { get; set; }
+    public IDbSet<Meta> Metas { get; set; }
     public IDbSet<Account> Accounts { get; set; }
     public IDbSet<PartialTransaction> PartialTransactions { get; set; }
     public IDbSet<AccountCategory> AccountCategories { get; set; }

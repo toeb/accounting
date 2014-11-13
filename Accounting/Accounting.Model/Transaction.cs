@@ -7,59 +7,39 @@ namespace Accounting.Model
 {
   public class Transaction : Meta
   {
+    public Transaction()
+    {
+      Partials = new List<PartialTransaction>();
+      ReceiptDate = DateTime.Now;
+    }
     public string ReceiptNumber
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public DateTime ReceiptDate
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public string Text
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
-    public virtual System.Collections.Generic.IList<Accounting.Model.PartialTransaction> Partials
+    public virtual IList<PartialTransaction> Partials
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public Transaction Storno
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
   }
 }

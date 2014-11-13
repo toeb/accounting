@@ -12,7 +12,7 @@ using System.ComponentModel.Composition.Hosting;
 namespace Accounting.Tests
 {
 
-  public class DbContextTest<TDbContext> :InjectingTestBase where TDbContext : DbContext
+  public class DbContextTest<TDbContext> : InjectingTestBase where TDbContext : DbContext, new()
   {
     public string ConnectionString
     {
@@ -31,15 +31,20 @@ namespace Accounting.Tests
     {
       base.Init();
       Database.SetInitializer(new DropCreateDatabaseAlways<TDbContext>());
-      this.Context = new AccountingDbContext();
+      this.Context = CreateContext();
       if (this.Context.Database.Exists()) Context.Database.Delete();
       this.Context.Database.CreateIfNotExists();
       Container.ComposeExportedValue<DbContext>(Context);
 
     }
 
+    protected virtual TDbContext CreateContext()
+    {
+      return new TDbContext();
+    }
 
 
-    public AccountingDbContext Context { get; set; }
+
+    public TDbContext Context { get; set; }
   }
 }

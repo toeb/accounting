@@ -61,6 +61,7 @@
     <Compile Include="AccountingDataContextTest.cs" />
     <Compile Include="AccountingFacadeTest.cs" />
     <Compile Include="DbContextTest.cs" />
+    <Compile Include="EntityModelTest.cs" />
     <Compile Include="InjectingTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />

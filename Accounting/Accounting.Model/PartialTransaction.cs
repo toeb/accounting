@@ -10,46 +10,26 @@ namespace Accounting.Model
 
     public decimal Amount
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public PartialTransactionType Type
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public Account Account
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public Transaction Transaction
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
   }
 }

@@ -9,13 +9,8 @@ namespace Accounting.Model
   {
     public string Name
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
   }
 }
