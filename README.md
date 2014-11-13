@@ -18,3 +18,23 @@
 * Visual Studio 2013
   * Extensions
  
+
+## Deploying
+
+Server is 85.214.22.163
+Domain is accounting.greeno.de
+
+deploy settings file is saved in root
+
+
+* Right click Website project in Solution Explorer
+* select publish
+* Choose Import 
+* select accounting.greeno.de.PublishSettings in project root
+* enter password for webdeploy user
+* validate connection
+* next
+* File Publish Options 
+* Database Options -> no database yet
+* then publish
+   * if publish fails because missing dlls be sure to set the build configuriation to the same build configuration you used in webdeploy
