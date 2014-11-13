@@ -42,6 +42,7 @@
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <Choose>
@@ -57,9 +58,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AccountingDataContextTest.cs" />
     <Compile Include="AccountingFacadeTest.cs" />
     <Compile Include="DbContextTest.cs" />
+    <Compile Include="InjectingTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Accounting.BusinessLayer\Accounting.BusinessLayer.csproj">

@@ -9,68 +9,38 @@ namespace Accounting.Model
   {
     public string Name
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public string Number
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public string ShortName
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
-    public Account Parent
+    public virtual Account Parent
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
-    public IList<Account> Children
+    public virtual IList<Account> Children
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
 
     public AccountCategory AccountCategory
     {
-      get
-      {
-        throw new System.NotImplementedException();
-      }
-      set
-      {
-      }
+      get;
+      set;
     }
   }
 }

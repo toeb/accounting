@@ -6,37 +6,40 @@ using System.Data.Entity;
 using System.Runtime.Remoting.Contexts;
 using Accounting.Model;
 using System.Linq;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 
 namespace Accounting.Tests
 {
 
-  public class DbContextTest<TDbContext> where TDbContext : DbContext
+  public class DbContextTest<TDbContext> :InjectingTestBase where TDbContext : DbContext
   {
     public string ConnectionString
     {
       get
       {
-        
+        // todo: get from application config
         return @"Server=.\SQLEXPRESS;Database=Accounting.Testdb;Trusted_connection=true";
       }
     }
-  
-    [TestInitialize]
-    public void Init()
+
+
+    /// <summary>
+    /// drops and recreates the database before every test
+    /// </summary>
+    protected override void Init()
     {
+      base.Init();
       Database.SetInitializer(new DropCreateDatabaseAlways<TDbContext>());
       this.Context = new AccountingDbContext();
+      if (this.Context.Database.Exists()) Context.Database.Delete();
       this.Context.Database.CreateIfNotExists();
-      AfterDbContextIntialization();
-  
+      Container.ComposeExportedValue<DbContext>(Context);
+
     }
-  
-    protected virtual void AfterDbContextIntialization()
-    {
-    }
-  
-  
-  
+
+
+
     public AccountingDbContext Context { get; set; }
   }
 }

@@ -10,33 +10,37 @@ using System.Linq;
 namespace Accounting.Tests
 {
   [TestClass]
-  public class AccountingFacadeTest : DbContextTest<AccountingDbContext>
+  public class AccountingFacadeTest : TestBase
   {
-    protected override void AfterDbContextIntialization()
-    {
-      uut = new AccountingFacade()
-      {
-        Accounts = new RepositoryBase<Account>(Context)
-      };
-    }
-
+    /// <summary>
+    /// this test ensures that the accounting facade is correctly generated and dependency injected
+    /// </summary>
     [TestMethod]
-    public void TestDataConnection()
+    public void AccountingFacadeShouldBeCreated()
     {
-      Assert.IsTrue(Context.Database.Exists());
+      
+      var uut = Require<IAccountingFacade>();
+      Assert.IsNotNull(uut);
     }
 
+
+    /// <summary>
+    /// This test ensures that an account can be opened when specifying an accountname and number
+    /// </summary>
     [TestMethod]
     public void OpenAccount()
     {
       // arrange
+      var uut = Require<IAccountingFacade>();
+      
       var command = new OpenAccountCommand();
       command.AccountName = "my_first_account";
       command.AccountNumber = "1234";
-      command.CategoryId = 1;
 
       // act
       uut.OpenAccount(command);
+
+      Context.SaveChanges();
 
       // assert
       Assert.IsNotNull(command.Account);
@@ -46,6 +50,5 @@ namespace Accounting.Tests
     }
 
 
-    public IAccountingFacade uut { get; set; }
   }
 }

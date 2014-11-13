@@ -7,6 +7,13 @@ namespace Accounting.Model
 {
   public class Meta
   {
+
+    public Meta()
+    {
+      CreationDate = DateTime.Now;
+      LastModified = DateTime.Now;
+
+    }
     public int Id
     {
       get;
