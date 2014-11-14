@@ -38,3 +38,8 @@ deploy settings file is saved in root
 * Database Options -> no database yet
 * then publish
    * if publish fails because missing dlls be sure to set the build configuriation to the same build configuration you used in webdeploy
+
+## Visual studio extensions
+
+* task runner extension (only for web frontend js&css libraries)
+* node js / npm (also for frontend)
