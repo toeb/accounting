@@ -12,6 +12,11 @@ angular.module('frontend', ['ngResource', 'ui.router', 'ngMaterial'])
       url: '/api',
       templateUrl: 'app/views/api/api.html',
       controller:'ApiCtrl'
+    })
+    .state('accounts',{
+      url: '/accounts',
+      templateUrl: 'app/views/accounts/accounts.html',
+      controller:'AccountsCtrl'
     });
 
     $urlRouterProvider.otherwise('/');

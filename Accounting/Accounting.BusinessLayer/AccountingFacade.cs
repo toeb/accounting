@@ -8,8 +8,6 @@ using System.Text;
 namespace Accounting.BusinessLayer
 {
 
-  
-
   [Export(typeof(IAccountingFacade))]
   public class AccountingFacade : IAccountingFacade
   {
@@ -19,7 +17,7 @@ namespace Accounting.BusinessLayer
 
     public void OpenAccount(OpenAccountCommand command)
     {
-
+      if (command == null) throw new ArgumentNullException("command");
       if (string.IsNullOrWhiteSpace(command.AccountName)) throw new InvalidOperationException("accountname may not be whitespace empty");
       if (string.IsNullOrWhiteSpace(command.AccountNumber)) throw new InvalidOperationException("acccount number may not be null or empty");
 
