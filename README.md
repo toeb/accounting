@@ -70,4 +70,7 @@ How to extend
  * your view should work
 
 
+## Issues  / Solutions
 
+
+* error: `wrong version of typescript` solution `tools->extensions->install typescript 1.3 for VS2013`
