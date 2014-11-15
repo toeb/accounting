@@ -5,9 +5,14 @@ angular.module('frontend', ['ngResource', 'ui.router'])
     $stateProvider
       .state('home', {
         url: '/',
-        templateUrl: 'app/main/main.html',
+        templateUrl: 'app/views/main/main.html',
         controller: 'MainCtrl'
-      });
+      })
+    .state('api', {
+      url: '/api',
+      templateUrl: 'app/views/api/api.html',
+      controller:'ApiCtrl'
+    });
 
     $urlRouterProvider.otherwise('/');
   })
