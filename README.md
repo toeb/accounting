@@ -35,7 +35,9 @@ deploy settings file is saved in root
 * validate connection
 * next
 * File Publish Options 
-* Database Options -> no database yet
+* Database Options
+ * connections string `Data Source=.\SQLEXPRESS;Initial Catalog=accounting.greeno.de;Persist Security Info=True;User ID=greennode;Password=greennode1!`
+ * also enable migrations
 * then publish
    * if publish fails because missing dlls be sure to set the build configuriation to the same build configuration you used in webdeploy
 
