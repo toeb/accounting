@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('frontend', ['ngResource', 'ui.router'])
+angular.module('frontend', ['ngResource', 'ui.router', 'ngMaterial'])
   .config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider
       .state('home', {

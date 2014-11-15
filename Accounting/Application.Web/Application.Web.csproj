@@ -115,6 +115,7 @@
     <Content Include="Frontend\src\app\index.min.css">
       <DependentUpon>index.css</DependentUpon>
     </Content>
+    <Content Include="Frontend\src\app\services\accountingService.js" />
     <Content Include="Frontend\src\app\views\api\api.controller.js" />
     <Content Include="Frontend\src\app\views\api\api.html" />
     <Content Include="Frontend\src\app\views\main\main.controller.js" />
@@ -191,7 +192,6 @@
   <ItemGroup>
     <Folder Include="Frontend\dist\" />
     <Folder Include="Frontend\src\app\directives\" />
-    <Folder Include="Frontend\src\app\services\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
