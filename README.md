@@ -70,4 +70,8 @@ How to extend
  * your view should work
 
 
+## Issues  / Solutions
 
+
+* error: `wrong version of typescript` solution `tools->extensions->install typescript 1.3 for VS2013`
+* error: `web site does not load correctly` solution `delete folder Fronted/bower_components execute bower install in Frontend folder from shell`
