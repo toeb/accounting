@@ -11,53 +11,6 @@ using OpenQA.Selenium.PhantomJS;
 
 namespace Application.Web.Test
 {
-  public class AccountingWebE2ETest : OwinE2ETest
-  {
-    protected override void InitializeOwin(Owin.IAppBuilder app)
-    {
-      new Startup().Configuration(app);
-    }
-  }
-  public class OwinE2ETest
-  {
-    public IWebDriver Browser { get;private set; }
-
-    protected virtual string GetUrl()
-    {
-      return "http://localhost:9286";
-    }
-
-    protected virtual IWebDriver CreateWebDriver()
-    {
-      return new PhantomJSDriver();
-    }
-
-    [TestInitialize]
-    public void InitializeTest()
-    {
-      this.Url = GetUrl();
-      this.WebApplication = WebApp.Start(Url, app =>
-      {
-        InitializeOwin(app);
-      });
-      this.Browser = CreateWebDriver();
-    }
-
-    protected virtual void InitializeOwin(Owin.IAppBuilder app)
-    {
-
-    }
-
-    [TestCleanup]
-    public void CleanupTest()
-    {
-      WebApplication.Dispose();
-    }
-
-    public string Url { get; set; }
-
-    public IDisposable WebApplication { get; set; }
-  }
 
   [TestClass]
   public class OwinApplicationSeleniumTests
