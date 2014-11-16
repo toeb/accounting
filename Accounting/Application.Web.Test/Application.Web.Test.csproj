@@ -75,7 +75,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="AccountingWebE2ETest.cs" />
+    <Compile Include="FrontedTest.cs" />
+    <Compile Include="OwinApplicationSeleniumTest.cs" />
+    <Compile Include="OwinE2ETest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
