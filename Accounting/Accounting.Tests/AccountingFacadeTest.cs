@@ -45,6 +45,7 @@ namespace Accounting.Tests
       // assert
       Assert.IsNotNull(command.Account);
       Assert.AreNotEqual(0, command.Account.Id);
+      Assert.IsTrue(command.Account.IsActive);
       Context.Accounts.Any(acc => acc.Id == command.Account.Id);
 
     }
@@ -66,6 +67,52 @@ namespace Accounting.Tests
 
       // act
       uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
+    }
+
+    [TestMethod]
+    public void BillTransactionShouldWorkForABalancedTransactionWithAllData()
+    {
+      var tobi = new Account() { IsActive = true, Name = "Tobi" };
+      var flo = new Account() { IsActive = true, Name = "Flo" };
+      var matthias= new Account() { IsActive = true, Name = "Matthi" };
+      Context.Set<Account>().Add(tobi);
+      Context.Set<Account>().Add(flo);
+      Context.Set<Account>().Add(matthias);
+      Context.SaveChanges();
+      
+      var uut = Require<IAccountingFacade>();
+
+      var cmd = new BillTransactionCommand()
+      {
+        Receipt = "My Receipt",
+        ReceiptDate = DateTime.Now,
+        TransactionText = "billing something"
+      };
+      cmd.PartialTransactions.Add(new PartialTransaction()
+      {
+        Amount = 2,
+        Account = new Account() { Id = tobi.Id },
+        Type = PartialTransactionType.Credit
+      });
+      cmd.PartialTransactions.Add(new PartialTransaction()
+      {
+        Amount = 3,
+        Account = new Account() { Id = flo.Id },
+        Type = PartialTransactionType.Credit
+      });
+      cmd.PartialTransactions.Add(new PartialTransaction()
+      {
+        Amount = 5,
+        Account = new Account() { Id = matthias.Id },
+        Type = PartialTransactionType.Debit
+      });
+
+
+      uut.BillTransaction(cmd);
+      Context.SaveChanges();
+
+      Assert.AreEqual(3, Context.Set<PartialTransaction>().Count());
+      Assert.AreEqual(1, Context.Set<Transaction>().Count());
     }
 
   }

@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AccountingApplication.cs" />
     <Compile Include="AccountingFacade.cs" />
+    <Compile Include="BillTransactionCommand.cs" />
     <Compile Include="OpenAccountCommand.cs" />
     <Compile Include="IAccountingFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
