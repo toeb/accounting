@@ -1,0 +1,13 @@
+﻿<h1>Open Account</h1>
+
+<ng-form name="openAccountForm">
+  <md-text-float min-length="3" label="Account Name" ng-model="accountToOpen.AccountName"></md-text-float>
+  <md-text-float label="Account Number" ng-model="accountToOpen.AccountNumber"></md-text-float>
+  <md-button ng-enabled="openAccountForm.$errors">Create Account</md-button>
+</ng-form>
+
+
+
+<pre>
+{{accountToOpen}}
+</pre>
