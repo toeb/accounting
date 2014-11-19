@@ -42,11 +42,12 @@
   <ItemGroup>
     <Compile Include="AccountingApplication.cs" />
     <Compile Include="AccountingFacade.cs" />
-    <Compile Include="BillTransactionCommand.cs" />
-    <Compile Include="OpenAccountCommand.cs" />
+    <Compile Include="Commands\BillTransactionCommand.cs" />
+    <Compile Include="Commands\OpenAccountCommand.cs" />
     <Compile Include="IAccountingFacade.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UpdateAccountCommand.cs" />
+    <Compile Include="Commands\UpdateAccountCommand.cs" />
+    <Compile Include="Commands\RevertTransactionCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BusinessLayerDiagram.cd" />

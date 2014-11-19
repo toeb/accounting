@@ -115,5 +115,68 @@ namespace Accounting.Tests
       Assert.AreEqual(1, Context.Set<Transaction>().Count());
     }
 
+
+    [TestMethod]
+    public void ShouldRevertTransaction()
+    {
+      // arrange
+      var uut = Require<IAccountingFacade>();
+
+      var tobi = uut.OpenAccount("Tobi", "1").Account;
+      var flo= uut.OpenAccount("Flo", "2").Account;
+
+      var transaction = uut.BillTransaction(tobi, flo, 10).Transaction;
+
+      Context.SaveChanges();
+      // act
+
+      var cmd = new RevertTransactionCommand()
+      {
+       TransactionId = transaction.Id 
+      };
+
+      uut.RevertTransaction(cmd);
+
+      // assert
+
+      Assert.IsNotNull(cmd.RevertedTransaction);
+      Assert.AreEqual(cmd.RevertedTransaction, cmd.RevertedTransaction.Storno.Storno);
+
+    }
+  }
+
+  public static class IAccountingFacadeExtensions
+  {
+    public static BillTransactionCommand BillTransaction(this IAccountingFacade self, Account debitor, Account creditor, decimal amount)
+    {
+      var command = new BillTransactionCommand();
+
+      command.Receipt = "Manual Transaction";
+      command.ReceiptDate = DateTime.Now;
+      command.TransactionText = "Manual Transaction";
+      command.PartialTransactions.Add(new PartialTransaction()
+      {
+        Account = debitor,
+        Amount = amount,
+        Type = PartialTransactionType.Debit
+      });
+      command.PartialTransactions.Add(new PartialTransaction()
+      {
+        Account = creditor,
+        Amount = amount,
+        Type = PartialTransactionType.Credit
+      });
+
+      self.BillTransaction(command);
+      return command;
+    }
+    public static OpenAccountCommand OpenAccount(this IAccountingFacade self, string accountName,string accountNumber)
+    {
+      var command = new OpenAccountCommand();
+      command.AccountName = accountName;
+      command.AccountNumber = accountNumber;
+      self.OpenAccount(command);
+      return command;
+    }
   }
 }

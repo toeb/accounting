@@ -108,5 +108,14 @@ namespace Accounting.BusinessLayer
       Trace.TraceInformation("Transaction was added to database");
       command.Transaction = transaction;
     }
+
+
+
+
+    public void RevertTransaction(RevertTransactionCommand command)
+    {
+      throw new NotImplementedException();
+    }
+
   }
 }
