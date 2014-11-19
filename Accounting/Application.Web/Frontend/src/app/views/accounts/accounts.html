@@ -3,8 +3,19 @@
   <div ng-include="'components/navbar/navbar.html'"></div>
 
 
-  <div class="row">
+
+
+
+  <div class="row" >
     <div class="col-sm-12">
+
+      <div class="col-sm-5" style="border:1px">
+        <md-text-float ng-model="search.Name" label="Search Accounts"></md-text-float>
+        <account-list accounts="service.accounts" search="search" selected="selectedAccount"></account-list>
+        selected:
+        <account-view ng-show="!!selectedAccount" account="selectedAccount"></account-view>
+      </div>
+
       <h1>Accounts Site</h1>
       <p>{{message}}</p>
 
@@ -12,14 +23,21 @@
 {{service}}
 </pre>
 
+      <account-view account="{asd:'bsd'}">kkkkk</account-view>
 
-      <md-button ng-click="service.getAccounts()">
-       Get Accounts
+
+
+      <md-button id="getAccountsBtn" ng-click="service.getAccounts()">
+        Get Accounts
       </md-button>
 
+      <div id="testid">hello</div>
 
+      <md-content class="md-padding">
+        <account-view ng-repeat="account in service.accounts" account="account"></account-view>
+      </md-content>
 
-      <div class="container">
+      <div class="container" id="accountscontainer">
         <div class="row">
           <div class="col-sm-4" ng-repeat="account in service.accounts">{{account.Name}}</div>
         </div>
@@ -27,37 +45,37 @@
 
     </div>
 
-    </div>
+  </div>
   <hr />
 
   <div class="row">
     <div class="=col-sm-12">
 
-    
 
-    <ng-form name="add_account_form">
-      <md-text-float label="Account Name" ng-model="service.account.AccountName"></md-text-float>
-      <md-text-float label="Account Number" ng-model="service.account.AccountNumber"></md-text-float>
 
-    </ng-form>
+      <ng-form name="add_account_form">
+        <md-text-float label="Account Name" ng-model="service.account.AccountName"></md-text-float>
+        <md-text-float label="Account Number" ng-model="service.account.AccountNumber"></md-text-float>
 
-    <md-button ng-click="service.openAccount()">
-      Create Account
-    </md-button>
+      </ng-form>
 
-    <pre>
+      <md-button ng-click="service.openAccount()">
+        Create Account
+      </md-button>
+
+      <pre>
   {{service.account}}
     </pre>
 
-    <ul>
-      <li ng-repeat="error in service.errors">{{error}}</li>
-    </ul>
+      <ul>
+        <li ng-repeat="error in service.errors">{{error}}</li>
+      </ul>
+
+    </div>
+
+    <hr>
+
+    <div class="footer">
+    </div>
 
   </div>
-
-  <hr>
-
-  <div class="footer">
-  </div>
-
-</div>

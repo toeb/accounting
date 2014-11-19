@@ -8,32 +8,33 @@ using Microsoft.Owin.Testing;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.PhantomJS;
+using OpenQA.Selenium.Remote;
 
 namespace Application.Web.Test
 {
-  public class OwinE2ETest
+  public class OwinE2ETest : Accounting.Tests.AccountingDataContextTest
   {
-    public IWebDriver Browser { get;private set; }
+    public RemoteWebDriver Browser { get; private set; }
   
     protected virtual string GetUrl()
     {
       return "http://localhost:9286";
     }
-  
-    protected virtual IWebDriver CreateWebDriver()
+
+    protected virtual RemoteWebDriver CreateWebDriver()
     {
       return new PhantomJSDriver();
     }
   
-    [TestInitialize]
-    public void InitializeTest()
-    {
-      Init();
-    }
+    //[TestInitialize]
+    //public void InitializeTest()
+    //{
+    //  Init();
+    //}
 
-    protected virtual void Init()
+    protected override void Init()
     {
-
+      base.Init();
       this.Url = GetUrl();
       this.WebApplication = WebApp.Start(Url, app =>
       {

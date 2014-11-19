@@ -8,6 +8,8 @@ using Microsoft.Owin.Testing;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.PhantomJS;
+using OpenQA.Selenium.Remote;
+using Accounting.Model;
 
 namespace Application.Web.Test
 {

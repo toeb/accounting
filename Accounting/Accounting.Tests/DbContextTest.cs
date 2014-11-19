@@ -35,15 +35,12 @@ namespace Accounting.Tests
       if (this.Context.Database.Exists()) Context.Database.Delete();
       this.Context.Database.CreateIfNotExists();
       Container.ComposeExportedValue<DbContext>(Context);
-
     }
 
     protected virtual TDbContext CreateContext()
     {
       return new TDbContext();
     }
-
-
 
     public TDbContext Context { get; set; }
   }

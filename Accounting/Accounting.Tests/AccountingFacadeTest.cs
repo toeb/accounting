@@ -30,6 +30,7 @@ namespace Accounting.Tests
     [TestMethod]
     public void ShouldOpenAnAccountWithNameAndNumber()
     {
+      var ctx = Require<DbContext>();
       // arrange
       var uut = Require<IAccountingFacade>();
       
