@@ -20,10 +20,10 @@ namespace Accounting.Tests
 
       Assert.IsNotNull(uut);
 
-      Assert.AreEqual(0, uut.AccountRepository.Get().Count());
+      Assert.AreEqual(0, uut.GetRepository<Account>().Get().Count());
 
       var account = new Account();
-      uut.AccountRepository.Insert(account);
+      uut.GetRepository<Account>().Insert(account);
       uut.Save();
 
       var context = Require<DbContext>();

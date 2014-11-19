@@ -1,5 +1,6 @@
 ﻿using Accounting.Model;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Data.Entity;
 
@@ -9,13 +10,13 @@ namespace Accounting.DataLayer
   public class UnitOfWork : IUnitOfWork
   {
     private DbContext context;
-    private IRepository<Account> accountRepo;
+    private Dictionary<Type, object> repo = new Dictionary<Type, object>();
 
     public UnitOfWork() : this("DefaultConnection") { }
 
     public UnitOfWork(string nameOrConnectionString)
     {
-      context = new AccountingDbContext(nameOrConnectionString);
+      this.context = new AccountingDbContext(nameOrConnectionString);
     }
 
     [ImportingConstructor]
@@ -24,13 +25,14 @@ namespace Accounting.DataLayer
       this.context = context;
     }
 
-    public IRepository<Account> AccountRepository
+    public IRepository<T> GetRepository<T>() where T : Meta
     {
-      get
-      {
-        if (accountRepo == null) accountRepo = new RepositoryBase<Account>(context);
-        return accountRepo;
-      }
+        Type t = typeof(T);
+        if (!repo.ContainsKey(t))
+        {
+            repo.Add(t, new RepositoryBase<T>(context));
+        }
+        return (IRepository<T>) repo[t];
     }
 
     public void Save()

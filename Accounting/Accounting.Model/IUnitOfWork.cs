@@ -8,7 +8,7 @@ namespace Accounting.Model
 {
   public interface IUnitOfWork : IDisposable
   {
-    IRepository<Account> AccountRepository { get; }
+    IRepository<T> GetRepository<T>() where T : Meta;
 
     void Save();
   }
