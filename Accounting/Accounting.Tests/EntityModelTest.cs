@@ -14,7 +14,7 @@ namespace Accounting.Tests
   [TestClass]
   public class EntityModelTest : TestBase
   {
-  
+
     [TestMethod]
     public void ShouldSaveAccountCorrectly()
     {
@@ -23,20 +23,21 @@ namespace Accounting.Tests
       // create account with category
 
 
-      var account = new Account() { 
-        Name="Asd",
-        Number="1",
-        ShortName="b",
+      var account = new Account()
+      {
+        Name = "Asd",
+        Number = "1",
+        ShortName = "b",
         AccountCategory = new AccountCategory()
         {
-          Name="Default"
+          Name = "Default"
         },
         Parent = new Account()
         {
-          Name="b",
-          Number="2",
-          ShortName="c"
-          
+          Name = "b",
+          Number = "2",
+          ShortName = "c"
+
         }
 
       };
@@ -48,11 +49,11 @@ namespace Accounting.Tests
       var context2 = CreateContext();
 
 
-      var savedAccount = uut.Set<Account>().Single(acc=>acc.Name =="Asd");
+      var savedAccount = uut.Set<Account>().Single(acc => acc.Name == "Asd");
 
-      
+
       Assert.IsNotNull(savedAccount.AccountCategory);
-      Assert.AreNotEqual(0,savedAccount.Id);
+      Assert.AreNotEqual(0, savedAccount.Id);
       Assert.AreEqual("Asd", savedAccount.Name);
       Assert.AreEqual("1", savedAccount.Number);
       Assert.AreEqual("b", savedAccount.ShortName);
@@ -78,7 +79,7 @@ namespace Accounting.Tests
       var accounts = uut.Set<Account>().ToArray();
       var cat = uut.Set<AccountCategory>().ToArray();
 
-      
+
 
       Assert.AreEqual(3, metas.Count());
       Assert.AreEqual(2, metas.OfType<Account>().Count());
@@ -120,19 +121,18 @@ namespace Accounting.Tests
       transactions.Insert(t1);
       Context.SaveChanges();
 
-
       var context2 = CreateContext();
 
       var t2 = context2.Transactions.Single();
 
-      Assert.AreEqual(3,t2.Partials.Count());
+      Assert.AreEqual(3, t2.Partials.Count());
 
       foreach (var p in t2.Partials)
       {
         Assert.IsTrue(p.Transaction == t2);
       }
 
-      
+
 
     }
   }

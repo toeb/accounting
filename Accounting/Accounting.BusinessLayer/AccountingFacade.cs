@@ -12,7 +12,7 @@ namespace Accounting.BusinessLayer
   public class AccountingFacade : IAccountingFacade
   {
     [Import]
-    public IRepository<Account> Accounts { get; set; }
+    public IUnitOfWork UnitOfWork { get; set; }
 
 
     public void OpenAccount(OpenAccountCommand command)
@@ -21,11 +21,12 @@ namespace Accounting.BusinessLayer
       if (string.IsNullOrWhiteSpace(command.AccountName)) throw new InvalidOperationException("accountname may not be whitespace empty");
       if (string.IsNullOrWhiteSpace(command.AccountNumber)) throw new InvalidOperationException("acccount number may not be null or empty");
 
-      if (Accounts.Get(acc => acc.Name == command.AccountName || acc.Number == command.AccountNumber).Any()) throw new InvalidOperationException("account name or number is not unique");
+      if (UnitOfWork.GetRepository<Account>().Get(acc => acc.Name == command.AccountName || acc.Number == command.AccountNumber).Any()) throw new InvalidOperationException("account name or number is not unique");
 
       Account parent = null;
-      if(command.ParentAccountId.HasValue){
-        parent =Accounts.GetByID(command.ParentAccountId);
+      if (command.ParentAccountId.HasValue)
+      {
+        parent = UnitOfWork.GetRepository<Account>().GetByID(command.ParentAccountId);
       }
 
 
@@ -36,11 +37,11 @@ namespace Accounting.BusinessLayer
         Parent = parent
       };
 
-      Accounts.Insert(account);
+      UnitOfWork.GetRepository<Account>().Insert(account);
 
       command.Account = account;
 
-
+      UnitOfWork.Save();
     }
   }
 }
