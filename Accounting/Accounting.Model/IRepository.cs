@@ -12,15 +12,25 @@ namespace Accounting.Model
       string includeProperties = "");
 
 
+    IQueryable<TEntity> Read();
+
+
     TEntity GetByID(object id);
 
-    void Insert(TEntity entity);
+    /// <summary>
+    /// creates the specified entity in the database. 
+    /// 
+    /// </summary>
+    /// <param name="entity"></param>
+    void Create(TEntity entity);
 
     void Delete(object id);
 
     void Delete(TEntity entityToDelete);
 
     void Update(TEntity entityToUpdate);
+
+    void Refresh(TEntity revertedTransaction);
   }
 
 }

@@ -9,7 +9,10 @@ namespace Accounting.BusinessLayer
   public class RevertTransactionCommand
   {
     public int TransactionId { get; set; }
-
+    /// <summary>
+    /// alternative text
+    /// </summary>
+    public string Text { get; set; }
     public Transaction RevertedTransaction { get; set; }
   }
 }

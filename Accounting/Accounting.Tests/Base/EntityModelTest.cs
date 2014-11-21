@@ -118,7 +118,7 @@ namespace Accounting.Tests
         Account = new Account() { Name = "a" }
       });
 
-      transactions.Insert(t1);
+      transactions.Create(t1);
       Context.SaveChanges();
 
       var context2 = CreateContext();

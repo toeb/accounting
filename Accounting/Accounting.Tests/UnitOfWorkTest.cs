@@ -23,7 +23,7 @@ namespace Accounting.Tests
       Assert.AreEqual(0, uut.GetRepository<Account>().Get().Count());
 
       var account = new Account();
-      uut.GetRepository<Account>().Insert(account);
+      uut.GetRepository<Account>().Create(account);
       uut.Save();
 
       var context = Require<DbContext>();

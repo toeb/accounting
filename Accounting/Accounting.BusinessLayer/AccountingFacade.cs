@@ -15,8 +15,6 @@ namespace Accounting.BusinessLayer
     [Import]
     public IUnitOfWork UnitOfWork { get; set; }
 
-    [Import]
-    public IRepository<Transaction> Transactions { get; set; }
 
     public void OpenAccount(OpenAccountCommand command)
     {
@@ -41,7 +39,7 @@ namespace Accounting.BusinessLayer
         IsActive = true
       };
 
-      UnitOfWork.GetRepository<Account>().Insert(account);
+      UnitOfWork.GetRepository<Account>().Create(account);
 
       command.Account = account;
 
@@ -54,6 +52,7 @@ namespace Accounting.BusinessLayer
     {
       // get repository
       var Accounts = UnitOfWork.GetRepository<Account>();
+      var Transactions = UnitOfWork.GetRepository<Transaction>();
 
       Trace.TraceInformation("Billing a transaction");
 
@@ -105,7 +104,7 @@ namespace Accounting.BusinessLayer
       };
       transaction.Partials = command.PartialTransactions.ToList();
 
-      Transactions.Insert(transaction);
+      Transactions.Create(transaction);
       UnitOfWork.Save();
 
       Trace.TraceInformation("Transaction was added to database");
@@ -117,7 +116,34 @@ namespace Accounting.BusinessLayer
 
     public void RevertTransaction(RevertTransactionCommand command)
     {
-      throw new NotImplementedException();
+
+      var transactions = UnitOfWork.GetRepository<Transaction>();
+      var accounts = UnitOfWork.GetRepository<Account>();
+
+
+      var transactionToRevert= transactions.GetByID(command.TransactionId);
+      if (transactionToRevert == null) throw new InvalidOperationException("the transaction to revert does not exist");
+
+
+      var revertedTransaction = new Transaction()
+      {
+        Storno = transactionToRevert,
+        ReceiptDate = transactionToRevert.ReceiptDate,
+        ReceiptNumber = transactionToRevert.ReceiptNumber,
+        Text = string.IsNullOrWhiteSpace(command.Text)?"Storno: "+ transactionToRevert.Text:command.Text,
+        Partials = transactionToRevert.Partials.Select(p => new PartialTransaction() { Amount = -p.Amount, Type = p.Type}).ToList()
+      };
+
+      transactionToRevert.Storno = revertedTransaction;
+
+      transactions.Create(revertedTransaction);
+      transactions.Update(transactionToRevert);
+      UnitOfWork.Save();
+
+      transactions.Refresh(revertedTransaction.Storno);
+      transactions.Refresh(revertedTransaction);
+
+      command.RevertedTransaction = revertedTransaction;
     }
 
   }
