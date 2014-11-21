@@ -40,7 +40,6 @@ namespace Accounting.Tests
       // act
       uut.OpenAccount(command);
 
-      //Context.SaveChanges(); // Question  should the repository save this automatically?
 
       // assert
       Assert.IsNotNull(command.Account);
@@ -57,13 +56,14 @@ namespace Accounting.Tests
     {
       //arrange
       var uut = Require<IAccountingFacade>();
+      var uow = Require<IUnitOfWork>();
 
       var accounts = Require<IRepository<Account>>();
       accounts.Insert(new Account() { 
         Number = "123"
       });
 
-      Context.SaveChanges();
+      uow.Save();
 
       // act
       uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
@@ -75,10 +75,11 @@ namespace Accounting.Tests
       var tobi = new Account() { IsActive = true, Name = "Tobi" };
       var flo = new Account() { IsActive = true, Name = "Flo" };
       var matthias= new Account() { IsActive = true, Name = "Matthi" };
-      Context.Set<Account>().Add(tobi);
-      Context.Set<Account>().Add(flo);
-      Context.Set<Account>().Add(matthias);
-      Context.SaveChanges();
+      var uow = Require<IUnitOfWork>();
+      uow.GetRepository<Account>().Insert(tobi);
+      uow.GetRepository<Account>().Insert(flo);
+      uow.GetRepository<Account>().Insert(matthias);
+      uow.Save();
       
       var uut = Require<IAccountingFacade>();
 
@@ -109,7 +110,6 @@ namespace Accounting.Tests
 
 
       uut.BillTransaction(cmd);
-      Context.SaveChanges();
 
       Assert.AreEqual(3, Context.Set<PartialTransaction>().Count());
       Assert.AreEqual(1, Context.Set<Transaction>().Count());

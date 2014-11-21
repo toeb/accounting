@@ -106,7 +106,7 @@ namespace Accounting.BusinessLayer
       transaction.Partials = command.PartialTransactions.ToList();
 
       Transactions.Insert(transaction);
-      UnitOfWork.Save()
+      UnitOfWork.Save();
 
       Trace.TraceInformation("Transaction was added to database");
       command.Transaction = transaction;
