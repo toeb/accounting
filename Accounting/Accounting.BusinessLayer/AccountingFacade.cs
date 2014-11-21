@@ -52,6 +52,7 @@ namespace Accounting.BusinessLayer
 
     public void BillTransaction(BillTransactionCommand command)
     {
+      // get repository
       var Accounts = UnitOfWork.GetRepository<Account>();
 
       Trace.TraceInformation("Billing a transaction");
@@ -105,7 +106,7 @@ namespace Accounting.BusinessLayer
       transaction.Partials = command.PartialTransactions.ToList();
 
       Transactions.Insert(transaction);
-      // IUnitOfWork.Save()
+      UnitOfWork.Save();
 
       Trace.TraceInformation("Transaction was added to database");
       command.Transaction = transaction;
