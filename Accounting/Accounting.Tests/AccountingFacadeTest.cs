@@ -40,7 +40,7 @@ namespace Accounting.Tests
       // act
       uut.OpenAccount(command);
 
-      Context.SaveChanges(); // Question  should the repository save this automatically?
+      //Context.SaveChanges(); // Question  should the repository save this automatically?
 
       // assert
       Assert.IsNotNull(command.Account);
