@@ -67,6 +67,7 @@
     <Compile Include="InjectingTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />
+    <Compile Include="UnitOfWorkTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Accounting.BusinessLayer\Accounting.BusinessLayer.csproj">
