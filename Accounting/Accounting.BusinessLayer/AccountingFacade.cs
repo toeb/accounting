@@ -52,6 +52,8 @@ namespace Accounting.BusinessLayer
 
     public void BillTransaction(BillTransactionCommand command)
     {
+      var Accounts = UnitOfWork.GetRepository<Account>();
+
       Trace.TraceInformation("Billing a transaction");
 
       
