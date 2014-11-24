@@ -10,6 +10,12 @@
   * creator rejects issue if necessary
 * assign issue only to yourself 
 * create issues (for ideas) / add to milestone
+* merge into master only using pull requests and after a successfull code review
+
+
+### Coding guidelines
+* Use System.Diagnostics.Trace to log what you are doing
+ * Logging helps debugging and is also good documentation
 
 
 ## Requirements

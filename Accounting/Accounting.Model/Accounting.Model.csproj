@@ -42,6 +42,7 @@
     <Compile Include="Account.cs" />
     <Compile Include="AccountCategory.cs" />
     <Compile Include="IRepository.cs" />
+    <Compile Include="IUnitOfWork.cs" />
     <Compile Include="Meta.cs" />
     <Compile Include="PartialTransaction.cs" />
     <Compile Include="PartialTransactionType.cs" />

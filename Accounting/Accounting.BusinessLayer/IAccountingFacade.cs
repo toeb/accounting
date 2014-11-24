@@ -7,9 +7,24 @@ namespace Accounting.BusinessLayer
 {
   public interface IAccountingFacade
   {
+    /// <summary>
+    /// Opens an account / performs validation on the account which is to be opened
+    /// throws Invalidoperatioexception if the commands values are not valid
+    /// </summary>
+    /// <param name="command"></param>
     void OpenAccount(OpenAccountCommand command);
 
 
+    void BillTransaction(BillTransactionCommand command);
+
+    /// <summary>
+    /// causes a transaction to be reverted - a new transaction with inverted values is added and connected to the original transaction
+    /// </summary>
+    /// <param name="command"></param>
+    void RevertTransaction(RevertTransactionCommand command);
+
   }
+
+
 
 }

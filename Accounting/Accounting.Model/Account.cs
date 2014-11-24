@@ -7,6 +7,7 @@ namespace Accounting.Model
 {
   public class Account : Meta
   {
+    public bool IsActive { get; set; }
     public string Name
     {
       get;
