@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="AccountingDataContextTest.cs" />
     <Compile Include="AccountingFacadeTest.cs" />
+    <Compile Include="BillTransactionCommandExtensions.cs" />
     <Compile Include="DbContextTest.cs" />
     <Compile Include="EntityModelTest.cs" />
     <Compile Include="InjectingTestBase.cs" />

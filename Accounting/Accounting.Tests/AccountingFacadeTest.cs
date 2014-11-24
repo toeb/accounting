@@ -18,7 +18,7 @@ namespace Accounting.Tests
     [TestMethod]
     public void AccountingFacadeShouldBeCreated()
     {
-      
+
       var uut = Require<IAccountingFacade>();
       Assert.IsNotNull(uut);
     }
@@ -32,7 +32,7 @@ namespace Accounting.Tests
     {
       // arrange
       var uut = Require<IAccountingFacade>();
-      
+
       var command = new OpenAccountCommand();
       command.AccountName = "my_first_account";
       command.AccountNumber = "1234";
@@ -51,7 +51,7 @@ namespace Accounting.Tests
 
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes=true)]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
     public void OpenAccountShouldFailIfAccountNumberAlreadyExists()
     {
       //arrange
@@ -59,7 +59,8 @@ namespace Accounting.Tests
       var uow = Require<IUnitOfWork>();
 
       var accounts = Require<IRepository<Account>>();
-      accounts.Insert(new Account() { 
+      accounts.Insert(new Account()
+      {
         Number = "123"
       });
 
@@ -74,13 +75,13 @@ namespace Accounting.Tests
     {
       var tobi = new Account() { IsActive = true, Name = "Tobi" };
       var flo = new Account() { IsActive = true, Name = "Flo" };
-      var matthias= new Account() { IsActive = true, Name = "Matthi" };
+      var matthias = new Account() { IsActive = true, Name = "Matthi" };
       var uow = Require<IUnitOfWork>();
       uow.GetRepository<Account>().Insert(tobi);
       uow.GetRepository<Account>().Insert(flo);
       uow.GetRepository<Account>().Insert(matthias);
       uow.Save();
-      
+
       var uut = Require<IAccountingFacade>();
 
       var cmd = new BillTransactionCommand()
@@ -89,24 +90,9 @@ namespace Accounting.Tests
         ReceiptDate = DateTime.Now,
         TransactionText = "billing something"
       };
-      cmd.PartialTransactions.Add(new PartialTransaction()
-      {
-        Amount = 2,
-        Account = new Account() { Id = tobi.Id },
-        Type = PartialTransactionType.Credit
-      });
-      cmd.PartialTransactions.Add(new PartialTransaction()
-      {
-        Amount = 3,
-        Account = new Account() { Id = flo.Id },
-        Type = PartialTransactionType.Credit
-      });
-      cmd.PartialTransactions.Add(new PartialTransaction()
-      {
-        Amount = 5,
-        Account = new Account() { Id = matthias.Id },
-        Type = PartialTransactionType.Debit
-      });
+      cmd.AddCreditor(2, tobi.Id);
+      cmd.AddCreditor(3, flo.Id);
+      cmd.AddDebitor(5, matthias.Id);
 
 
       uut.BillTransaction(cmd);

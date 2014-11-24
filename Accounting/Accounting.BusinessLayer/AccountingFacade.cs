@@ -64,33 +64,51 @@ namespace Accounting.BusinessLayer
       if(string.IsNullOrWhiteSpace(command.Receipt))throw new InvalidOperationException("transaction does not have a receipt");
       if(!command.ReceiptDate.HasValue)throw new InvalidOperationException("transaction needs a valid receipt date");
 
-      if (command.PartialTransactions == null) throw new InvalidOperationException("partial transactions may not be null");
-      if (command.PartialTransactions.Count() < 2) throw new InvalidOperationException("at least two partial transactions are necessary to create a transaction");
-      if (!command.PartialTransactions.Any(p => p.Type == PartialTransactionType.Credit)) throw new InvalidOperationException("at least one partial transaction needs to be credit");
-      if (!command.PartialTransactions.Any(p => p.Type == PartialTransactionType.Debit)) throw new InvalidOperationException("at least one partial transaction needs to be debit");
-      if (command.PartialTransactions.Any(p => p.Amount <= 0.0m)) throw new InvalidOperationException("partial transactions may not have an amount of 0 or less");
 
-      
+      if (command.Credits == null) throw new InvalidOperationException("credits may not be null");
+      if (command.Debits == null) throw new InvalidOperationException("debits may not be null");
+      if (command.Credits.Any(p => p.Amount <= 0.0m)) throw new InvalidOperationException("partial transactions may not have an amount of 0 or less");
+      if (command.Debits.Any(p => p.Amount <= 0.0m)) throw new InvalidOperationException("partial transactions may not have an amount of 0 or less");
+
+      // check if balanced
+
+      var creditSum = command.Credits.Aggregate(0.0m, (lhs, p) => lhs + p.Amount);
+      var debitSum = command.Debits.Aggregate(0.0m, (lhs, p) => lhs + p.Amount);
+
+      if (creditSum != debitSum) throw new InvalidOperationException("transaction is not balanced");
+
+
+      List<PartialTransaction> transactions = new List<PartialTransaction>();
       // check if accounts exist
-      foreach (var partial in command.PartialTransactions)
+      foreach (var partial in command.Credits)
       {
-        if (partial.Account == null) throw new InvalidOperationException("partial transaction needs to have an account");
-        partial.Account = Accounts.GetByID(partial.Account.Id);
-        if (partial.Account == null) throw new InvalidOperationException("partial transaction needs to have an existing account");
-        if (!partial.Account.IsActive) throw new InvalidOperationException("transaction may touch only active accounts");
+        var obj = new PartialTransaction()
+        {
+          Type = PartialTransactionType.Credit,
+          Amount = partial.Amount,
+          Account = Accounts.GetByID(partial.AccountId)
+        };
+        if(obj.Account == null) throw new InvalidOperationException("partial transaction needs to have an existing account");
+        if (!obj.Account.IsActive) throw new InvalidOperationException("transaction may touch only active accounts");
+        transactions.Add(obj);
+      }
+
+      foreach (var partial in command.Debits)
+      {
+        var obj = new PartialTransaction()
+        {
+          Type = PartialTransactionType.Debit,
+          Amount = partial.Amount,
+          Account = Accounts.GetByID(partial.AccountId)
+        };
+        if (obj.Account == null) throw new InvalidOperationException("partial transaction needs to have an existing account");
+        if (!obj.Account.IsActive) throw new InvalidOperationException("transaction may touch only active accounts");
+          transactions.Add(obj);
       }
 
 
 
-      // check if balanced
-      var debits = command.PartialTransactions.Where(p => p.Type == PartialTransactionType.Debit);
-      var credits = command.PartialTransactions.Where(p => p.Type == PartialTransactionType.Credit);
-
-      var creditSum = credits.Aggregate(0.0m, (lhs, p) => lhs + p.Amount);
-      var debitSum = credits.Aggregate(0.0m, (lhs, p) => lhs + p.Amount);
-
-      if (creditSum != debitSum) throw new InvalidOperationException("transaction is not balanced");
-
+      
 
       Trace.TraceInformation("Transaction is valid adding it to database");
 
@@ -100,10 +118,10 @@ namespace Accounting.BusinessLayer
         Text = command.TransactionText,
         Storno= null,
         CreationDate = DateTime.Now,
-        LastModified= DateTime.Now
+        LastModified= DateTime.Now,
+        Partials = transactions
         
       };
-      transaction.Partials = command.PartialTransactions.ToList();
 
       Transactions.Insert(transaction);
       UnitOfWork.Save();

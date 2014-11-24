@@ -6,17 +6,18 @@ using System.Text;
 
 namespace Accounting.BusinessLayer
 {
+
   public class BillTransactionCommand
   {
-    public BillTransactionCommand() { PartialTransactions = new List<PartialTransaction>(); }
+    public BillTransactionCommand() { Credits = new List<AddPartialTransactionCommand>(); Debits = new List<AddPartialTransactionCommand>(); }
     public string Receipt { get; set; }
     public DateTime? ReceiptDate { get; set; }
     public string TransactionText { get; set; }
 
-    /// <summary>
-    ///  partial transactions to perform
-    /// </summary>
-    public IList<PartialTransaction> PartialTransactions { get; set; }
+
+    public IList<AddPartialTransactionCommand> Credits { get; set; }
+    public IList<AddPartialTransactionCommand> Debits { get; set; }
+
 
     /// <summary>
     /// output transaction 
