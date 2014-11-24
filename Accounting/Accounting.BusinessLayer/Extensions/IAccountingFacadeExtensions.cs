@@ -1,13 +1,8 @@
-using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Accounting.BusinessLayer;
-using Accounting.DataLayer;
-using System.Data.Entity;
-using System.Runtime.Remoting.Contexts;
 using Accounting.Model;
-using System.Linq;
+using System;
 
-namespace Accounting.Tests
+namespace Accounting.BusinessLayer
 {
   /// <summary>
   /// mixin for IAccountingFacade
@@ -21,18 +16,8 @@ namespace Accounting.Tests
       command.Receipt = "Manual Transaction";
       command.ReceiptDate = DateTime.Now;
       command.TransactionText = "Manual Transaction";
-      command.PartialTransactions.Add(new PartialTransaction()
-      {
-        Account = debitor,
-        Amount = amount,
-        Type = PartialTransactionType.Debit
-      });
-      command.PartialTransactions.Add(new PartialTransaction()
-      {
-        Account = creditor,
-        Amount = amount,
-        Type = PartialTransactionType.Credit
-      });
+      command.AddDebitor(amount, debitor.Id);
+      command.AddCreditor(amount, creditor.Id);
   
       self.BillTransaction(command);
       return command;
