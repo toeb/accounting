@@ -59,8 +59,7 @@ namespace Accounting.Tests
       var uow = Require<IUnitOfWork>();
 
       var accounts = Require<IRepository<Account>>();
-      accounts.Insert(new Account()
-      {
+      accounts.Create(new Account() { 
         Number = "123"
       });
 
@@ -77,9 +76,9 @@ namespace Accounting.Tests
       var flo = new Account() { IsActive = true, Name = "Flo" };
       var matthias = new Account() { IsActive = true, Name = "Matthi" };
       var uow = Require<IUnitOfWork>();
-      uow.GetRepository<Account>().Insert(tobi);
-      uow.GetRepository<Account>().Insert(flo);
-      uow.GetRepository<Account>().Insert(matthias);
+      uow.GetRepository<Account>().Create(tobi);
+      uow.GetRepository<Account>().Create(flo);
+      uow.GetRepository<Account>().Create(matthias);
       uow.Save();
 
       var uut = Require<IAccountingFacade>();
@@ -101,5 +100,43 @@ namespace Accounting.Tests
       Assert.AreEqual(1, Context.Set<Transaction>().Count());
     }
 
+
+    /// <summary>
+    /// this test ensures that a storno creates another transaction whith inverted amounts
+    /// and sets the correct fields
+    /// </summary>
+    [TestMethod]
+    public void ShouldRevertTransaction()
+    {
+      // arrange
+      var uut = Require<IAccountingFacade>();
+      var transactions =  Require<IUnitOfWork>().GetRepository<Transaction>();
+      var tobi = uut.OpenAccount("Tobi", "1").Account;
+      var flo= uut.OpenAccount("Flo", "2").Account;
+
+      var transaction = uut.BillTransaction(tobi, flo, 10).Transaction;
+
+      // act
+
+      var cmd = new RevertTransactionCommand()
+      {
+       TransactionId = transaction.Id 
+      };
+
+      uut.RevertTransaction(cmd);
+
+      // assert
+
+      Assert.IsNotNull(cmd.RevertedTransaction);
+      // reverted transactions storno should be transaction itself
+      Assert.AreEqual(cmd.RevertedTransaction, cmd.RevertedTransaction.Storno.Storno);
+      Assert.AreEqual(transaction.Id, cmd.RevertedTransaction.Storno.Id);
+      // only negative amounts
+      Assert.IsTrue(cmd.RevertedTransaction.Partials.All(p=>p.Amount == -10m));
+
+      Assert.IsTrue(transactions.Read().Count() == 2);
+
+    }
   }
+
 }

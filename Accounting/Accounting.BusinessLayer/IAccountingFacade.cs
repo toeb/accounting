@@ -17,6 +17,12 @@ namespace Accounting.BusinessLayer
 
     void BillTransaction(BillTransactionCommand command);
 
+    /// <summary>
+    /// causes a transaction to be reverted - a new transaction with inverted values is added and connected to the original transaction
+    /// </summary>
+    /// <param name="command"></param>
+    void RevertTransaction(RevertTransactionCommand command);
+
   }
 
 

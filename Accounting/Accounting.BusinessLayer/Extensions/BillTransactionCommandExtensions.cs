@@ -1,13 +1,6 @@
-using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Accounting.BusinessLayer;
-using Accounting.DataLayer;
-using System.Data.Entity;
-using System.Runtime.Remoting.Contexts;
-using Accounting.Model;
-using System.Linq;
 
-namespace Accounting.Tests
+namespace Accounting.BusinessLayer
 {
   public static class BillTransactionCommandExtensions
   {

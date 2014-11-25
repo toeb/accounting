@@ -56,9 +56,10 @@ namespace Accounting.DataLayer
       return dbSet.Find(id);
     }
 
-    public virtual void Insert(TEntity entity)
+    public virtual void Create(TEntity entity)
     {
-      dbSet.Add(entity);
+      context.Entry(entity).State = EntityState.Added;
+      //dbSet.Add(entity);
     }
 
     public virtual void Delete(object id)
@@ -80,6 +81,18 @@ namespace Accounting.DataLayer
     {
       dbSet.Attach(entityToUpdate);
       context.Entry(entityToUpdate).State = EntityState.Modified;
+    }
+
+
+    public void Refresh(TEntity revertedTransaction)
+    {
+      context.Entry(revertedTransaction).Reload();
+    }
+
+
+    public IQueryable<TEntity> Read()
+    {
+      return context.Set<TEntity>();
     }
   }
 }
