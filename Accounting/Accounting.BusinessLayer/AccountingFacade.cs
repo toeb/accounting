@@ -46,7 +46,27 @@ namespace Accounting.BusinessLayer
       UnitOfWork.Save();
     }
 
+    private static IEnumerable<PartialTransaction> CreatePartialTransactions(
+      IRepository<Account> Accounts,
+      IEnumerable<AddPartialTransactionCommand> partials,
+      PartialTransactionType type)
+    {
 
+      // check if accounts exist
+      foreach (var partial in partials)
+      {
+        var obj = new PartialTransaction()
+        {
+          Type = type,
+          Amount = partial.Amount,
+          Account = Accounts.GetByID(partial.AccountId)
+        };
+        if (obj.Account == null) throw new InvalidOperationException("partial transaction needs to have an existing account");
+        if (!obj.Account.IsActive) throw new InvalidOperationException("transaction may touch only active accounts");
+
+        yield return obj;
+      }
+    }
 
     public void BillTransaction(BillTransactionCommand command)
     {
@@ -77,35 +97,9 @@ namespace Accounting.BusinessLayer
       if (creditSum != debitSum) throw new InvalidOperationException("transaction is not balanced");
 
 
-      List<PartialTransaction> transactions = new List<PartialTransaction>();
-      // check if accounts exist
-      foreach (var partial in command.Credits)
-      {
-        var obj = new PartialTransaction()
-        {
-          Type = PartialTransactionType.Credit,
-          Amount = partial.Amount,
-          Account = Accounts.GetByID(partial.AccountId)
-        };
-        if(obj.Account == null) throw new InvalidOperationException("partial transaction needs to have an existing account");
-        if (!obj.Account.IsActive) throw new InvalidOperationException("transaction may touch only active accounts");
-        transactions.Add(obj);
-      }
-
-      foreach (var partial in command.Debits)
-      {
-        var obj = new PartialTransaction()
-        {
-          Type = PartialTransactionType.Debit,
-          Amount = partial.Amount,
-          Account = Accounts.GetByID(partial.AccountId)
-        };
-        if (obj.Account == null) throw new InvalidOperationException("partial transaction needs to have an existing account");
-        if (!obj.Account.IsActive) throw new InvalidOperationException("transaction may touch only active accounts");
-          transactions.Add(obj);
-      }
-
-
+      var transactions = CreatePartialTransactions(Accounts, command.Credits, PartialTransactionType.Credit)
+        .Concat(CreatePartialTransactions(Accounts, command.Debits, PartialTransactionType.Debit)).ToList();
+      
 
       
 
