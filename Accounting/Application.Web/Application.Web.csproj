@@ -589,6 +589,9 @@
     <Content Include="Frontend\src\app\services\accountingService.js" />
     <Content Include="Frontend\src\app\views\accounts\accounts.controller.js" />
     <Content Include="Frontend\src\app\views\accounts\accounts.html" />
+    <Content Include="Frontend\src\app\views\accounts\details.html" />
+    <Content Include="Frontend\src\app\views\accounts\list.html" />
+    <Content Include="Frontend\src\app\views\accounts\open.html" />
     <Content Include="Frontend\src\app\views\api\api.controller.js" />
     <Content Include="Frontend\src\app\views\api\api.html" />
     <Content Include="Frontend\src\app\views\main\main.controller.js" />
