@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -14,6 +15,8 @@ namespace Accounting.BusinessLayer
     [Import]
     public IUnitOfWork UnitOfWork { get; set; }
 
+    [Import]
+    public IRepository<Transaction> Transactions { get; set; }
 
     public void OpenAccount(OpenAccountCommand command)
     {
@@ -34,7 +37,8 @@ namespace Accounting.BusinessLayer
       {
         Name = command.AccountName,
         Number = command.AccountNumber,
-        Parent = parent
+        Parent = parent,
+        IsActive = true
       };
 
       UnitOfWork.GetRepository<Account>().Insert(account);
@@ -42,6 +46,82 @@ namespace Accounting.BusinessLayer
       command.Account = account;
 
       UnitOfWork.Save();
+    }
+
+    private static IEnumerable<PartialTransaction> CreatePartialTransactions(
+      IRepository<Account> Accounts,
+      IEnumerable<AddPartialTransactionCommand> partials,
+      PartialTransactionType type)
+    {
+
+      // check if accounts exist
+      foreach (var partial in partials)
+      {
+        var obj = new PartialTransaction()
+        {
+          Type = type,
+          Amount = partial.Amount,
+          Account = Accounts.GetByID(partial.AccountId)
+        };
+        if (obj.Account == null) throw new InvalidOperationException("partial transaction needs to have an existing account");
+        if (!obj.Account.IsActive) throw new InvalidOperationException("transaction may touch only active accounts");
+
+        yield return obj;
+      }
+    }
+
+    public void BillTransaction(BillTransactionCommand command)
+    {
+      // get repository
+      var Accounts = UnitOfWork.GetRepository<Account>();
+
+      Trace.TraceInformation("Billing a transaction");
+
+      
+      if (command == null) throw new ArgumentNullException("command");
+      
+      if(string.IsNullOrWhiteSpace(command.TransactionText))throw new InvalidOperationException("transaction does not have a text");
+      if(string.IsNullOrWhiteSpace(command.Receipt))throw new InvalidOperationException("transaction does not have a receipt");
+      if(!command.ReceiptDate.HasValue)throw new InvalidOperationException("transaction needs a valid receipt date");
+
+
+      if (command.Credits == null) throw new InvalidOperationException("credits may not be null");
+      if (command.Debits == null) throw new InvalidOperationException("debits may not be null");
+      if (command.Credits.Any(p => p.Amount <= 0.0m)) throw new InvalidOperationException("partial transactions may not have an amount of 0 or less");
+      if (command.Debits.Any(p => p.Amount <= 0.0m)) throw new InvalidOperationException("partial transactions may not have an amount of 0 or less");
+
+      // check if balanced
+
+      var creditSum = command.Credits.Aggregate(0.0m, (lhs, p) => lhs + p.Amount);
+      var debitSum = command.Debits.Aggregate(0.0m, (lhs, p) => lhs + p.Amount);
+
+      if (creditSum != debitSum) throw new InvalidOperationException("transaction is not balanced");
+
+
+      var transactions = CreatePartialTransactions(Accounts, command.Credits, PartialTransactionType.Credit)
+        .Concat(CreatePartialTransactions(Accounts, command.Debits, PartialTransactionType.Debit)).ToList();
+      
+
+      
+
+      Trace.TraceInformation("Transaction is valid adding it to database");
+
+      var transaction= new Transaction(){
+        ReceiptDate = command.ReceiptDate.Value,
+        ReceiptNumber = command.Receipt,
+        Text = command.TransactionText,
+        Storno= null,
+        CreationDate = DateTime.Now,
+        LastModified= DateTime.Now,
+        Partials = transactions
+        
+      };
+
+      Transactions.Insert(transaction);
+      UnitOfWork.Save();
+
+      Trace.TraceInformation("Transaction was added to database");
+      command.Transaction = transaction;
     }
   }
 }

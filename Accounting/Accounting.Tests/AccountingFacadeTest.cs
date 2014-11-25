@@ -18,7 +18,7 @@ namespace Accounting.Tests
     [TestMethod]
     public void AccountingFacadeShouldBeCreated()
     {
-      
+
       var uut = Require<IAccountingFacade>();
       Assert.IsNotNull(uut);
     }
@@ -32,7 +32,7 @@ namespace Accounting.Tests
     {
       // arrange
       var uut = Require<IAccountingFacade>();
-      
+
       var command = new OpenAccountCommand();
       command.AccountName = "my_first_account";
       command.AccountNumber = "1234";
@@ -40,32 +40,65 @@ namespace Accounting.Tests
       // act
       uut.OpenAccount(command);
 
-      //Context.SaveChanges(); // Question  should the repository save this automatically?
 
       // assert
       Assert.IsNotNull(command.Account);
       Assert.AreNotEqual(0, command.Account.Id);
+      Assert.IsTrue(command.Account.IsActive);
       Context.Accounts.Any(acc => acc.Id == command.Account.Id);
 
     }
 
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes=true)]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
     public void OpenAccountShouldFailIfAccountNumberAlreadyExists()
     {
       //arrange
       var uut = Require<IAccountingFacade>();
+      var uow = Require<IUnitOfWork>();
 
       var accounts = Require<IRepository<Account>>();
-      accounts.Insert(new Account() { 
+      accounts.Insert(new Account()
+      {
         Number = "123"
       });
 
-      Context.SaveChanges();
+      uow.Save();
 
       // act
       uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
+    }
+
+    [TestMethod]
+    public void BillTransactionShouldWorkForABalancedTransactionWithAllData()
+    {
+      var tobi = new Account() { IsActive = true, Name = "Tobi" };
+      var flo = new Account() { IsActive = true, Name = "Flo" };
+      var matthias = new Account() { IsActive = true, Name = "Matthi" };
+      var uow = Require<IUnitOfWork>();
+      uow.GetRepository<Account>().Insert(tobi);
+      uow.GetRepository<Account>().Insert(flo);
+      uow.GetRepository<Account>().Insert(matthias);
+      uow.Save();
+
+      var uut = Require<IAccountingFacade>();
+
+      var cmd = new BillTransactionCommand()
+      {
+        Receipt = "My Receipt",
+        ReceiptDate = DateTime.Now,
+        TransactionText = "billing something"
+      };
+      cmd.AddCreditor(2, tobi.Id);
+      cmd.AddCreditor(3, flo.Id);
+      cmd.AddDebitor(5, matthias.Id);
+
+
+      uut.BillTransaction(cmd);
+
+      Assert.AreEqual(3, Context.Set<PartialTransaction>().Count());
+      Assert.AreEqual(1, Context.Set<Transaction>().Count());
     }
 
   }
