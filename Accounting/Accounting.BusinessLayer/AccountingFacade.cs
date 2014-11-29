@@ -158,5 +158,13 @@ namespace Accounting.BusinessLayer
       command.RevertedTransaction = revertedTransaction;
     }
 
+
+
+    public void ListAccounts(ListAccountsCommand command)
+    {
+      /// future: chck if user is allowed to access account
+      var accounts = UnitOfWork.GetRepository<Account>();
+      command.Query = accounts.Read().Where(acc => acc.IsActive);
+    }
   }
 }

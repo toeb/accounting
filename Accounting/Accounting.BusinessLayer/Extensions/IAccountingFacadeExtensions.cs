@@ -1,6 +1,7 @@
 using Accounting.BusinessLayer;
 using Accounting.Model;
 using System;
+using System.Linq;
 
 namespace Accounting.BusinessLayer
 {
@@ -29,6 +30,18 @@ namespace Accounting.BusinessLayer
       command.AccountNumber = accountNumber;
       self.OpenAccount(command);
       return command;
+    }
+
+    public static ListAccountsCommand ListAccounts(this IAccountingFacade self)
+    {
+      var cmd = new ListAccountsCommand();
+      self.ListAccounts(cmd);
+      return cmd;
+    }
+    public static IQueryable<Account> QueryAccounts(this IAccountingFacade self)
+    {
+        return self.ListAccounts().Query;
+
     }
   }
 }

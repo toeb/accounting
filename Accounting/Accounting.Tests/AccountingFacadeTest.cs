@@ -137,6 +137,34 @@ namespace Accounting.Tests
       Assert.IsTrue(transactions.Read().Count() == 2);
 
     }
+
+    [TestMethod]
+    public void ShouldListNoAccountsWhenDbIsEmpty()
+    {
+      var uut = Require<IAccountingFacade>();
+      var result = uut.QueryAccounts().Count();
+      Assert.AreEqual(0, result);
+    }
+
+
+    [TestMethod]
+    public void ShouldListActiveAccount()
+    {
+      var uut = Require<IAccountingFacade>();
+
+      uut.OpenAccount("toeb", "123");
+      uut.OpenAccount("toeb2", "234");
+
+      var cmd = new ListAccountsCommand();
+      uut.ListAccounts(cmd);
+
+      Assert.IsNotNull(cmd.Query);
+      Assert.AreEqual(2, cmd.Query.Count());
+      Assert.IsTrue(cmd.Query.Any(acc => acc.Name == "toeb"));
+      Assert.IsTrue(cmd.Query.Any(acc => acc.Name == "toeb2"));
+    }
+
+    
   }
 
 }
