@@ -23,6 +23,9 @@ namespace Accounting.BusinessLayer
     /// <param name="command"></param>
     void RevertTransaction(RevertTransactionCommand command);
 
+
+    void ListAccounts(ListAccountsCommand command);
+
   }
 
 
