@@ -69,6 +69,98 @@ namespace Accounting.Tests
       uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
     }
 
+    /// <summary>
+    /// This test ensures that an account can be updated when specifying an accountname, shortname or number
+    /// </summary>
+    [TestMethod]
+    public void ShouldUpdateAnAccount()
+    {
+      // arrange
+      var uut = Require<IAccountingFacade>();
+
+      OpenAccountCommand command;
+      uut.OpenAccount(command = new OpenAccountCommand()
+      {
+        AccountName = "my_updatable_account",
+        AccountNumber = "100000"
+      });
+
+      Assert.IsNotNull(command.Account);
+      Assert.AreNotEqual(0, command.Account.Id);
+
+      var id = command.Account.Id;
+
+      var updateCommand = new UpdateAccountCommand()
+      {
+        AccountId = command.Account.Id,
+        NewShortName = "updated_account"
+      };
+
+      uut.UpdateAccount(updateCommand);
+
+      // assert
+      Assert.IsNotNull(updateCommand.ModifiedAccount);
+      Assert.AreEqual(id, updateCommand.ModifiedAccount.Id);
+      Assert.AreEqual("100000", updateCommand.ModifiedAccount.Number);
+      Assert.AreEqual("my_updatable_account", updateCommand.ModifiedAccount.Name);
+      Assert.AreEqual("updated_account", updateCommand.ModifiedAccount.ShortName);
+
+      updateCommand = new UpdateAccountCommand()
+      {
+        AccountId = command.Account.Id,
+        NewShortName = "updated_account2",
+        NewName = "my_account_name",
+        NewNumber = "100001"
+      };
+
+      uut.UpdateAccount(updateCommand);
+
+      // assert
+      Assert.IsNotNull(updateCommand.ModifiedAccount);
+      Assert.AreEqual(id, updateCommand.ModifiedAccount.Id);
+      Assert.AreEqual("100001", updateCommand.ModifiedAccount.Number);
+      Assert.AreEqual("my_account_name", updateCommand.ModifiedAccount.Name);
+      Assert.AreEqual("updated_account2", updateCommand.ModifiedAccount.ShortName);
+    }
+
+    /// <summary>
+    /// This test ensures that an account update is rejected when there is a parameter conflict
+    /// </summary>
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void ShouldValidateParametersOnAccountUpdate()
+    {
+      // arrange
+      var uut = Require<IAccountingFacade>();
+
+      OpenAccountCommand command;
+      uut.OpenAccount(command = new OpenAccountCommand()
+      {
+        AccountName = "my_account1",
+        AccountNumber = "100000"
+      });
+
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "my_account2",
+        AccountNumber = "200000"
+      });
+
+      Assert.IsNotNull(command.Account);
+      Assert.AreNotEqual(0, command.Account.Id);
+
+      var id = command.Account.Id;
+
+      // try duplicate account number
+      var updateCommand = new UpdateAccountCommand()
+      {
+        AccountId = command.Account.Id,
+        NewNumber = "200000"
+      };
+
+      uut.UpdateAccount(updateCommand);
+    }
+
     [TestMethod]
     public void BillTransactionShouldWorkForABalancedTransactionWithAllData()
     {

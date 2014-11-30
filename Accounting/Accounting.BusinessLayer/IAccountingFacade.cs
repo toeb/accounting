@@ -14,6 +14,13 @@ namespace Accounting.BusinessLayer
     /// <param name="command"></param>
     void OpenAccount(OpenAccountCommand command);
 
+    /// <summary>
+    /// Updates an existing account by modifying any of the secondary properties
+    /// Number, ShortName, Name
+    /// </summary>
+    /// <param name="command"></param>
+    void UpdateAccount(UpdateAccountCommand command);
+
 
     void BillTransaction(BillTransactionCommand command);
 
