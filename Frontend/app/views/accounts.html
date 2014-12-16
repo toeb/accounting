@@ -1,0 +1,20 @@
+<a class="btn btn-success" ng-href="#/createaccount">{{translation.ACCOUNT.CREATE_ACCOUNT}}</a>
+
+<hr />
+
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>{{translation.ACCOUNT.ACCOUNT_NUMBER}}</th>
+      <th>{{translation.ACCOUNT.ACCOUNT_NAME}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="account in accounts">
+      <td>{{account.Number}}</td>
+      <td>{{account.Name}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<loading ng-show="loading"></loading>

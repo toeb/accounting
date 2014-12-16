@@ -1,0 +1,9 @@
+{
+  "TITLE" : "Accounting",
+  "CANCEL": "Cancel",
+  "ACCOUNT" : {
+    "CREATE_ACCOUNT": "Create Account",
+    "ACCOUNT_NAME": "Account Name",
+    "ACCOUNT_NUMBER": "Account Number"
+  }
+}

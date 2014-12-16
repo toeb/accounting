@@ -1,0 +1,22 @@
+<h1>{{translation.ACCOUNT.CREATE_ACCOUNT}}</h1>
+
+<div class="alert alert-danger" role="alert" ng-show="errorMessage">{{errorMessage}}</div>
+
+<form role="form" ng-submit="submitAccount()">
+  <fieldset ng-disabled="submitting">
+    <div class="form-group">
+      <label for="accountName">{{translation.ACCOUNT.ACCOUNT_NAME}}</label>
+      <input type="text" class="form-control" id="accountName" ng-model="accountName" />
+    </div>
+
+    <div class="form-group">
+      <label for="accountNumber">{{translation.ACCOUNT.ACCOUNT_NUMBER}}</label>
+      <input type="text" class="form-control" id="accountNumber" ng-model="accountNumber" />
+    </div>
+
+    <div class="form-group">
+      <input type="submit" class="btn btn-primary" value="{{translation.ACCOUNT.CREATE_ACCOUNT}}" />
+      <a ng-href="#/accounts">{{translation.CANCEL}}</a>
+    </div>
+  </fieldset>
+</form>
