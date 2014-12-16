@@ -56,3 +56,21 @@ $ grunt build
 
 This builds the project and does all kind of optimization (e.g. css minification).
 You can find the build project under the **dist** directory.
+
+## Development Notes
+
+### Adding AngularJS components
+
+```
+yo angular:route routename // adds controller, view and configures routeProvider
+yo angular:controller controllername
+yo angular:service servicename
+```
+
+### Installing new javascript libraries
+
+
+```
+bower search angular-i18n // searches for packages named angular-i18n
+bower install --save angular-i18n // installes the library
+```
