@@ -25,6 +25,8 @@ namespace Application.Web
       
       // Configure Web API for self-host. 
       HttpConfiguration config = new HttpConfiguration();
+      config.EnableCors();
+
       config.Routes.MapHttpRoute(
           name: "DefaultApi",
           routeTemplate: "api/{controller}/{id}",
