@@ -21,6 +21,11 @@ namespace Accounting.BusinessLayer
     /// <param name="command"></param>
     void UpdateAccount(UpdateAccountCommand command);
 
+    /// <summary>
+    /// Closes an existing account by setting the isActive field to false
+    /// </summary>
+    /// <param name="command">Contains the account to close</param>
+    void CloseAccount(CloseAccountCommand command);
 
     void BillTransaction(BillTransactionCommand command);
 
