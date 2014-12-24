@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Accounting.BusinessLayer
 {
-  class CloseAccountCommand
+  public class CloseAccountCommand
   {
     /// <summary>
     /// Set the account id of the account to be closed.<br/>

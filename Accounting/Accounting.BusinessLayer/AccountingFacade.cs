@@ -85,6 +85,78 @@ namespace Accounting.BusinessLayer
       UnitOfWork.Save();
     }
 
+
+    private void CheckAccountForClose(Account account)
+    {
+      var TransRepo = UnitOfWork.GetRepository<PartialTransaction>();
+      decimal Credit = TransRepo.Get(x => x.Account.Id == account.Id && x.Type == PartialTransactionType.Credit).Sum(x => x.Amount);
+      decimal Debit = TransRepo.Get(x => x.Account.Id == account.Id && x.Type == PartialTransactionType.Debit).Sum(x => x.Amount);
+
+      if (Credit != Debit) throw new InvalidOperationException("Account " + account.Id + " is not balanced!");
+      if (!account.IsActive) throw new InvalidOperationException("Account " + account.Id + " was already closed!");
+    }
+
+
+    private void CheckAccountsForCloseRecursive(Account startAt)
+    {
+      CheckAccountForClose(startAt);
+
+      foreach (var child in startAt.Children)
+      {
+        if (child.IsActive)
+        {
+          CheckAccountsForCloseRecursive(child);
+        }
+      }
+    }
+
+
+    private void CloseAccountInternal(Account account)
+    {
+      account.IsActive = false;
+      UnitOfWork.GetRepository<Account>().Update(account);
+    }
+
+
+    private void CloseAccountsRecursive(Account startAt)
+    {
+      foreach (var child in startAt.Children)
+      {
+        if (child.IsActive)
+        {
+          CloseAccountsRecursive(child);
+        }
+      }
+      CloseAccountInternal(startAt);
+    }
+
+
+    public void CloseAccount(CloseAccountCommand command)
+    {
+      if (command == null) throw new ArgumentNullException("command");
+      if (command.AccountId <= 0) throw new ArgumentException("command.AccountId");
+      if (command.ClosedAccount != null) throw new ArgumentException("command.ClosedAccount expected to be null");
+
+      var AccToClose = UnitOfWork.GetRepository<Account>().GetByID(command.AccountId);
+      if (AccToClose == null) throw new InvalidOperationException("The specified Account does not exist!");
+
+      if (command.Recursive)
+      {
+        CheckAccountsForCloseRecursive(AccToClose);
+        CloseAccountsRecursive(AccToClose);
+      }
+      else
+      {
+        CheckAccountForClose(AccToClose);
+        if (AccToClose.Children.Any(x => x.IsActive)) throw new InvalidOperationException("Account " + AccToClose.Id + " has active children and the close command was not called recursively!");
+        CloseAccountInternal(AccToClose);
+      }
+      command.ClosedAccount = AccToClose;
+
+      UnitOfWork.Save();
+    }
+
+
     private static IEnumerable<PartialTransaction> CreatePartialTransactions(
       IRepository<Account> Accounts,
       IEnumerable<AddPartialTransactionCommand> partials,

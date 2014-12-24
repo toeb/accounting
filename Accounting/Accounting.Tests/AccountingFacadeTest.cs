@@ -12,6 +12,7 @@ namespace Accounting.Tests
   [TestClass]
   public class AccountingFacadeTest : TestBase
   {
+    #region Test Requirements
     /// <summary>
     /// this test ensures that the accounting facade is correctly generated and dependency injected
     /// </summary>
@@ -23,6 +24,9 @@ namespace Accounting.Tests
       Assert.IsNotNull(uut);
     }
 
+    #endregion
+
+    #region OpenAccountCommand
 
     /// <summary>
     /// This test ensures that an account can be opened when specifying an accountname and number
@@ -68,6 +72,10 @@ namespace Accounting.Tests
       // act
       uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
     }
+
+    #endregion
+
+    #region UpdateAccountCommand
 
     /// <summary>
     /// This test ensures that an account can be updated when specifying an accountname, shortname or number
@@ -161,6 +169,72 @@ namespace Accounting.Tests
       uut.UpdateAccount(updateCommand);
     }
 
+    #endregion
+
+    #region CloseAccountCommand
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException), AllowDerivedTypes=true)]
+    public void CloseAccountRequiresAccountId()
+    {
+      var closeAccountCommand = new CloseAccountCommand()
+      {
+        AccountId = 0,
+        Recursive = false
+      };
+      var uut = Require<IAccountingFacade>();
+
+      uut.CloseAccount(closeAccountCommand);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void CloseAccountRequiresValidAccount()
+    {
+      var closeAccountCommand = new CloseAccountCommand()
+      {
+        AccountId = 100,
+        Recursive = false
+      };
+      var uut = Require<IAccountingFacade>();
+
+      // sanity check: element should not exist in database
+      Assert.IsFalse(Context.Accounts.Any(x => x.Id == 100));
+
+      uut.CloseAccount(closeAccountCommand);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void CloseAccountRequiresOpenAccount()
+    {
+      var uut = Require<IAccountingFacade>();
+      var open = new OpenAccountCommand()
+      {
+        AccountName = "A",
+        AccountNumber = "1000",
+        CategoryId = 0
+      };
+      uut.OpenAccount(open);
+      open.Account.IsActive = false;
+      Context.Entry(open.Account).State = EntityState.Modified;
+      Context.SaveChanges();
+
+      var closeAccountCommand = new CloseAccountCommand()
+      {
+        AccountId = open.Account.Id,
+        Recursive = false
+      };
+
+      uut.CloseAccount(closeAccountCommand);
+    }
+
+    // TODO positive tests
+
+    #endregion
+
+    #region BillTransactionCommand+Extensions
+
     [TestMethod]
     public void BillTransactionShouldWorkForABalancedTransactionWithAllData()
     {
@@ -192,6 +266,9 @@ namespace Accounting.Tests
       Assert.AreEqual(1, Context.Set<Transaction>().Count());
     }
 
+    #endregion
+
+    #region RevertTransactionCommand
 
     /// <summary>
     /// this test ensures that a storno creates another transaction whith inverted amounts
@@ -230,6 +307,10 @@ namespace Accounting.Tests
 
     }
 
+    #endregion
+
+    #region ListAccountCommand+Extensions
+
     [TestMethod]
     public void ShouldListNoAccountsWhenDbIsEmpty()
     {
@@ -256,7 +337,7 @@ namespace Accounting.Tests
       Assert.IsTrue(cmd.Query.Any(acc => acc.Name == "toeb2"));
     }
 
-    
+    #endregion
   }
 
 }
