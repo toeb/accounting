@@ -86,6 +86,7 @@ namespace Accounting.BusinessLayer
     }
 
 
+    // checks balance for specified account, requires 0 balance
     private void CheckAccountForClose(Account account)
     {
       var TransRepo = UnitOfWork.GetRepository<PartialTransaction>();
@@ -93,41 +94,38 @@ namespace Accounting.BusinessLayer
       decimal Debit = TransRepo.Get(x => x.Account.Id == account.Id && x.Type == PartialTransactionType.Debit).Sum(x => x.Amount);
 
       if (Credit != Debit) throw new InvalidOperationException("Account " + account.Id + " is not balanced!");
-      if (!account.IsActive) throw new InvalidOperationException("Account " + account.Id + " was already closed!");
     }
-
-
+    // recursively checks the startAt account and all of its children
     private void CheckAccountsForCloseRecursive(Account startAt)
     {
-      CheckAccountForClose(startAt);
+      if (startAt.IsActive)
+      {
+        CheckAccountForClose(startAt);
+      }
 
       foreach (var child in startAt.Children)
       {
-        if (child.IsActive)
-        {
-          CheckAccountsForCloseRecursive(child);
-        }
+        CheckAccountsForCloseRecursive(child);
       }
     }
-
-
+    // sets isActive of account to false and marks the change for saving
     private void CloseAccountInternal(Account account)
     {
       account.IsActive = false;
       UnitOfWork.GetRepository<Account>().Update(account);
     }
-
-
+    // recursively closing all children accounts before closing startAt
     private void CloseAccountsRecursive(Account startAt)
     {
       foreach (var child in startAt.Children)
       {
-        if (child.IsActive)
-        {
-          CloseAccountsRecursive(child);
-        }
+        CloseAccountsRecursive(child);
       }
-      CloseAccountInternal(startAt);
+
+      if (startAt.IsActive)
+      {
+        CloseAccountInternal(startAt);
+      }
     }
 
 
@@ -139,6 +137,7 @@ namespace Accounting.BusinessLayer
 
       var AccToClose = UnitOfWork.GetRepository<Account>().GetByID(command.AccountId);
       if (AccToClose == null) throw new InvalidOperationException("The specified Account does not exist!");
+      if (!AccToClose.IsActive) throw new InvalidOperationException("The specified Account is already closed!");
 
       if (command.Recursive)
       {
