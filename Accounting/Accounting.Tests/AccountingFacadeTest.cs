@@ -6,12 +6,160 @@ using System.Data.Entity;
 using System.Runtime.Remoting.Contexts;
 using Accounting.Model;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Accounting.Tests
 {
   [TestClass]
   public class AccountingFacadeTest : TestBase
   {
+
+    #region Test Setup for advanced Tests
+
+    /// <summary>
+    /// <para>Initializes the database with some entries for more advanced tests. Available accounts in hierarchie:</para>
+    /// <para>|Wertkonten| -> |Konto|</para>
+    /// <para>|Sachkonten| -> |Sachkonto1|</para>
+    /// <para>|Sachkonten| -> |Sachkonto2|</para>
+    /// <para>|Sachkonten| -> |Sachkonto3|</para>
+    /// <para>|Personenkonten| -> |Personenkonto1|</para>
+    /// <para>|Personenkonten| -> |Personenkonto2|</para>
+    /// <para>|Personenkonten| -> |Personenkonto2| -> |Personenkonto2.1|</para>
+    /// <para>|Personenkonten| -> |Personenkonto2| -> |Personenkonto2.2|</para>
+    /// <para>Account Activity and Balance for each account:</para>
+    /// <para>|konto| = credit: 0 | debit: 30.5 | balance: -30.5</para>
+    /// <para>|Sachkonto1| = credit: 5.5 | debit: 0 | balance: 5.5</para>
+    /// <para>|Sachkonto2| = credit: 0 | debit: 0 | balance: 0</para>
+    /// <para>|Personenkonto1| = credit: 25 | debit: 10 | balance: 15</para>
+    /// <para>|Personenkonto2| = credit: 15 | debit: 10 | balance: 5</para>
+    /// <para>|Personenkonto2.1| = credit: 15 | debit: 0 | balance: 15</para>
+    /// <para>|Personenkonto2.2| = credit: 0 | debit: 10 | balance: -10</para>
+    /// </summary>
+    protected void SetupAccountingEnvironment()
+    {
+      var uut = Require<IAccountingFacade>();
+
+      Context.AccountCategories.Add(new AccountCategory() { Name = "Hauptkategorie" });
+      Context.AccountCategories.Add(new AccountCategory() { Name = "Unterkategorie" });
+      Context.AccountCategories.Add(new AccountCategory() { Name = "Buchungskonto" });
+
+      Context.SaveChanges();
+
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Wertkonten",
+        AccountNumber = "#00001",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Hauptkategorie").Id
+      });
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Sachkonten",
+        AccountNumber = "#00002",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Hauptkategorie").Id
+      });
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Personenkonten",
+        AccountNumber = "#00003",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Hauptkategorie").Id
+      });
+
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Konto",
+        AccountNumber = "K00001",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Buchungskonto").Id,
+        ParentAccountId = Context.Accounts.FirstOrDefault(x => x.Name=="Wertkonten").Id
+      });
+
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Sachkonto1",
+        AccountNumber = "S00001",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Buchungskonto").Id,
+        ParentAccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Sachkonten").Id
+      });
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Sachkonto2",
+        AccountNumber = "S00002",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Buchungskonto").Id,
+        ParentAccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Sachkonten").Id
+      });
+
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Personenkonto1",
+        AccountNumber = "P00001",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Buchungskonto").Id,
+        ParentAccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonten").Id
+      });
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Personenkonto2",
+        AccountNumber = "P00002",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Buchungskonto").Id,
+        ParentAccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonten").Id
+      });
+
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Personenkonto2.1",
+        AccountNumber = "P00002-1",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Buchungskonto").Id,
+        ParentAccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2").Id
+      });
+      uut.OpenAccount(new OpenAccountCommand()
+      {
+        AccountName = "Personenkonto2.1",
+        AccountNumber = "P00002-2",
+        CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == "Buchungskonto").Id,
+        ParentAccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2").Id
+      });
+
+      var creditors1 = new AddPartialTransactionCommand[] {
+        new AddPartialTransactionCommand() { Amount = 5.5m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Sachkonto1").Id },
+        new AddPartialTransactionCommand() { Amount = 10m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2").Id },
+        new AddPartialTransactionCommand() { Amount = 15m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2.1").Id }
+      };
+
+      var debitors1 = new AddPartialTransactionCommand[] {
+        new AddPartialTransactionCommand() { Amount = 30.5m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Konto").Id }
+      };
+
+      uut.BillTransaction(new BillTransactionCommand()
+      {
+        TransactionText = "Test - Zahlungseingang mit split",
+        Receipt = "001",
+        ReceiptDate = new DateTime(1999, 1, 20),
+        Credits = new List<AddPartialTransactionCommand>(creditors1),
+        Debits = new List<AddPartialTransactionCommand>(debitors1)
+      });
+
+
+      var creditors2 = new AddPartialTransactionCommand[] {
+        new AddPartialTransactionCommand() { Amount = 25m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto1").Id },
+        new AddPartialTransactionCommand() { Amount = 5m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2").Id }
+      };
+
+      var debitors2 = new AddPartialTransactionCommand[] {
+        new AddPartialTransactionCommand() { Amount = 10m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto1").Id },
+        new AddPartialTransactionCommand() { Amount = 10m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2").Id },
+        new AddPartialTransactionCommand() { Amount = 10m, AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2.2").Id }
+      };
+
+      uut.BillTransaction(new BillTransactionCommand()
+      {
+        TransactionText = "Test - Many to Many transaction",
+        Receipt = "002",
+        ReceiptDate = new DateTime(1999, 2, 1),
+        Credits = new List<AddPartialTransactionCommand>(creditors2),
+        Debits = new List<AddPartialTransactionCommand>(debitors2)
+      });
+    }
+
+    #endregion
+
     #region Test Requirements
     /// <summary>
     /// this test ensures that the accounting facade is correctly generated and dependency injected
@@ -227,6 +375,21 @@ namespace Accounting.Tests
       };
 
       uut.CloseAccount(closeAccountCommand);
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void CloseAccountRequiresBalancedAccount()
+    {
+      // Use standard test environment setup
+      SetupAccountingEnvironment();
+
+      var uut = Require<IAccountingFacade>();
+
+      uut.CloseAccount(new CloseAccountCommand()
+      {
+        AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2.1").Id
+      });
     }
 
     // TODO positive tests
