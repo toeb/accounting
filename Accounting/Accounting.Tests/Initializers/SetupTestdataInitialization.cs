@@ -148,8 +148,8 @@ namespace Accounting.Tests.Initializers
 
       AddCreditorToTransaction(transaction, "Personenkonto1", 25m);
       AddCreditorToTransaction(transaction, "Personenkonto2", 5m);
-      AddDebitorToTransaction(transaction, "Personenkonto1", 30.5m);
-      AddDebitorToTransaction(transaction, "Personenkonto2", 30.5m);
+      AddDebitorToTransaction(transaction, "Personenkonto1", 10m);
+      AddDebitorToTransaction(transaction, "Personenkonto2", 10m);
       AddDebitorToTransaction(transaction, "Personenkonto2.2", 10m);
       Facade.BillTransaction(transaction);
 

@@ -103,6 +103,7 @@ namespace Accounting.BusinessLayer
         CheckAccountForClose(startAt);
       }
 
+      // FIXME: Children list is not correctly loaded if empty
       foreach (var child in startAt.Children)
       {
         CheckAccountsForCloseRecursive(child);
@@ -135,7 +136,8 @@ namespace Accounting.BusinessLayer
       if (command.AccountId <= 0) throw new ArgumentException("command.AccountId");
       if (command.ClosedAccount != null) throw new ArgumentException("command.ClosedAccount expected to be null");
 
-      var AccToClose = UnitOfWork.GetRepository<Account>().GetByID(command.AccountId);
+      // explicit Children load
+      var AccToClose = UnitOfWork.GetRepository<Account>().Get(x => x.Id == command.AccountId, null, "Children").First();
       if (AccToClose == null) throw new InvalidOperationException("The specified Account does not exist!");
       if (!AccToClose.IsActive) throw new InvalidOperationException("The specified Account is already closed!");
 
