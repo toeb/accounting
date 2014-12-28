@@ -103,10 +103,13 @@ namespace Accounting.BusinessLayer
         CheckAccountForClose(startAt);
       }
 
-      // FIXME: Children list is not correctly loaded if empty
-      foreach (var child in startAt.Children)
+      // FIX: Children list is not correctly loaded if empty
+      if (startAt.Children != null)
       {
-        CheckAccountsForCloseRecursive(child);
+        foreach (var child in startAt.Children)
+        {
+          CheckAccountsForCloseRecursive(child);
+        }
       }
     }
     // sets isActive of account to false and marks the change for saving
@@ -118,9 +121,13 @@ namespace Accounting.BusinessLayer
     // recursively closing all children accounts before closing startAt
     private void CloseAccountsRecursive(Account startAt)
     {
-      foreach (var child in startAt.Children)
+      // FIX: Children list is not correctly loaded if empty
+      if (startAt.Children != null)
       {
-        CloseAccountsRecursive(child);
+        foreach (var child in startAt.Children)
+        {
+          CloseAccountsRecursive(child);
+        }
       }
 
       if (startAt.IsActive)
@@ -136,8 +143,7 @@ namespace Accounting.BusinessLayer
       if (command.AccountId <= 0) throw new ArgumentException("command.AccountId");
       if (command.ClosedAccount != null) throw new ArgumentException("command.ClosedAccount expected to be null");
 
-      // explicit Children load
-      var AccToClose = UnitOfWork.GetRepository<Account>().Get(x => x.Id == command.AccountId, null, "Children").First();
+      var AccToClose = UnitOfWork.GetRepository<Account>().GetByID(command.AccountId);
       if (AccToClose == null) throw new InvalidOperationException("The specified Account does not exist!");
       if (!AccToClose.IsActive) throw new InvalidOperationException("The specified Account is already closed!");
 
@@ -149,7 +155,8 @@ namespace Accounting.BusinessLayer
       else
       {
         CheckAccountForClose(AccToClose);
-        if (AccToClose.Children.Any(x => x.IsActive)) throw new InvalidOperationException("Account " + AccToClose.Id + " has active children and the close command was not called recursively!");
+        // FIX: empty children-list may be null instead
+        if (AccToClose.Children != null && AccToClose.Children.Any(x => x.IsActive)) throw new InvalidOperationException("Account " + AccToClose.Id + " has active children and the close command was not called recursively!");
         CloseAccountInternal(AccToClose);
       }
       command.ClosedAccount = AccToClose;
