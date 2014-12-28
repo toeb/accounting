@@ -16,9 +16,8 @@ namespace Accounting.BusinessLayer
 
     /// <summary>
     /// Specify, whether children accounts should also be closed.<br/>
-    /// case true: the subtree is traversed until a closed account is found<br/>
-    /// (at this point, the subtree is assumed to be closed)
-    /// case false: the direct children (if any) are checked. If any is not closed,<br/>
+    /// case true: the subtree is traversed and each active child is also checked and closed<br/>
+    /// case false: the direct children (if any) are required to be closed, otherwise
     /// an exception is thrown and the command is aborted without change
     /// </summary>
     public bool Recursive { get; set; }
