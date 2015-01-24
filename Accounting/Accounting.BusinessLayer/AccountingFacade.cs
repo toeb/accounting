@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Linq;
+using System.Resources;
 using System.Text;
 
 namespace Accounting.BusinessLayer
@@ -14,6 +15,54 @@ namespace Accounting.BusinessLayer
   {
     [Import]
     public IUnitOfWork UnitOfWork { get; set; }
+
+
+    public void InitializeAccounting(InitializeAccountingCommand command)
+    {
+      var accountRepo = UnitOfWork.GetRepository<Account>();
+
+      // check for preexisting data
+      if (accountRepo.Read().Any())
+      {
+        switch (command.InitializationAction)
+        {
+          case InitializationActions.ExpectNewDatabase:
+            throw new InvalidOperationException("Expected a clean database!");
+          case InitializationActions.DropInactive:
+            if (accountRepo.Read().Any(x => x.IsActive)) throw new InvalidOperationException("Expected only inactive accounts!");
+            throw new NotImplementedException();
+          case InitializationActions.DropOld:
+            throw new NotImplementedException();
+          case InitializationActions.RepairOld:
+            throw new NotImplementedException();
+        }
+      }
+
+      var categories = UnitOfWork.GetRepository<AccountCategory>().Read();
+      var categoryCategory = categories.First(x => x.Name == "Kategorie");
+
+      var catMoney = new Account() { Number = "C01", Name = "Konten", AccountCategory = categoryCategory, ShortName = "Konten" };
+      accountRepo.Create(catMoney);
+
+      var catBalance = new Account() { Number = "C02", Name = "Sachkonten", AccountCategory = categoryCategory, ShortName = "Konten" };
+      accountRepo.Create(catBalance);
+
+      var catCustomers = new Account() { Number = "C03", Name = "Personenkonten", AccountCategory = categoryCategory, ShortName = "Konten" };
+      accountRepo.Create(catCustomers);
+
+      var accountCategory = categories.First(x => x.Name == "Konto");
+
+      var accBankAccount = new Account() { Number = "K000001", Name = "Konto der Aktivitas", AccountCategory = accountCategory, ShortName = "Konto", Parent = catMoney };
+      accountRepo.Create(accBankAccount);
+
+      var accEquity = new Account() { Number = "S000001", Name = "Eigenkapital", AccountCategory = accountCategory, ShortName = "Eigenkapital", Parent = catBalance };
+      accountRepo.Create(accEquity);
+
+      var accSample = new Account() { Number = "P000001", Name = "Beispielkonto für Personen", AccountCategory = accountCategory, ShortName = "Beispielkonto", Parent = catCustomers };
+      accountRepo.Create(accSample);
+
+      UnitOfWork.Save();
+    }
 
 
     public void OpenAccount(OpenAccountCommand command)

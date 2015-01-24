@@ -8,6 +8,15 @@ namespace Accounting.BusinessLayer
   public interface IAccountingFacade
   {
     /// <summary>
+    /// Checks whether any entries exist in the database.
+    /// An empty database is always initialized.
+    /// For a database with existing entries, the command settings decide, how to
+    /// handle the initialization.
+    /// </summary>
+    /// <param name="command"></param>
+    void InitializeAccounting(InitializeAccountingCommand command);
+
+    /// <summary>
     /// Opens an account / performs validation on the account which is to be opened
     /// throws Invalidoperatioexception if the commands values are not valid
     /// </summary>
