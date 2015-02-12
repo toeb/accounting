@@ -31,28 +31,47 @@ namespace Accounting.Tests
     #region OpenAccountCommand
 
     /// <summary>
-    /// This test ensures that an account can be opened when specifying an accountname and number
+    /// This test ensures that an account can be opened when providing an OpenAccountCommand
     /// </summary>
     [TestMethod]
-    public void ShouldOpenAnAccountWithNameAndNumber()
+    public void ShouldOpenAnAccount()
     {
       // arrange
       var uut = Require<IAccountingFacade>();
 
       var command = new OpenAccountCommand();
       command.AccountName = "my_first_account";
+      command.AccountShortname = "shortname";
       command.AccountNumber = "1234";
 
       // act
       uut.OpenAccount(command);
 
 
-      // assert
+      // check the output properties of the command
       Assert.IsNotNull(command.Account);
       Assert.AreNotEqual(0, command.Account.Id);
-      Assert.IsTrue(command.Account.IsActive);
-      Context.Accounts.Any(acc => acc.Id == command.Account.Id);
 
+      var acc = Context.Accounts.Find(command.Account.Id);
+      Assert.IsTrue(acc.IsActive);
+      Assert.AreEqual(command.AccountName, acc.Name);
+      Assert.AreEqual(command.AccountShortname, acc.ShortName);
+      Assert.AreEqual(command.AccountNumber, acc.Number);
+
+      var command2 = new OpenAccountCommand()
+      {
+        AccountName = "my_second_account",
+        AccountShortname = "second_shortname",
+        AccountNumber = "2345",
+        ParentAccountId = acc.Id
+      };
+      uut.OpenAccount(command2);
+
+      var acc1 = Context.Accounts.Find(acc.Id);
+      var acc2 = Context.Accounts.Find(command2.Account.Id);
+
+      Assert.IsNotNull(acc2.Parent);
+      Assert.AreEqual(1, acc1.Children.Count);
     }
 
 

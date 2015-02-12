@@ -35,6 +35,7 @@ namespace Accounting.BusinessLayer
       {
         Name = command.AccountName,
         Number = command.AccountNumber,
+        ShortName = command.AccountShortname,
         Parent = parent,
         IsActive = true
       };

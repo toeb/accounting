@@ -8,6 +8,7 @@ namespace Accounting.BusinessLayer
   public class OpenAccountCommand
   {
     public string AccountName { get; set; }
+    public string AccountShortname { get; set; }
     public string AccountNumber { get; set; }
 
     public int? ParentAccountId { get; set; }
