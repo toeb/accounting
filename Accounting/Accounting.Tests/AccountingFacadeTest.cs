@@ -6,12 +6,15 @@ using System.Data.Entity;
 using System.Runtime.Remoting.Contexts;
 using Accounting.Model;
 using System.Linq;
+using System.Collections.Generic;
+using Accounting.Tests.Initializers;
 
 namespace Accounting.Tests
 {
   [TestClass]
   public class AccountingFacadeTest : TestBase
   {
+    #region Test Requirements
     /// <summary>
     /// this test ensures that the accounting facade is correctly generated and dependency injected
     /// </summary>
@@ -23,30 +26,52 @@ namespace Accounting.Tests
       Assert.IsNotNull(uut);
     }
 
+    #endregion
+
+    #region OpenAccountCommand
 
     /// <summary>
-    /// This test ensures that an account can be opened when specifying an accountname and number
+    /// This test ensures that an account can be opened when providing an OpenAccountCommand
     /// </summary>
     [TestMethod]
-    public void ShouldOpenAnAccountWithNameAndNumber()
+    public void ShouldOpenAnAccount()
     {
       // arrange
       var uut = Require<IAccountingFacade>();
 
       var command = new OpenAccountCommand();
       command.AccountName = "my_first_account";
+      command.AccountShortname = "shortname";
       command.AccountNumber = "1234";
 
       // act
       uut.OpenAccount(command);
 
 
-      // assert
+      // check the output properties of the command
       Assert.IsNotNull(command.Account);
       Assert.AreNotEqual(0, command.Account.Id);
-      Assert.IsTrue(command.Account.IsActive);
-      Context.Accounts.Any(acc => acc.Id == command.Account.Id);
 
+      var acc = Context.Accounts.Find(command.Account.Id);
+      Assert.IsTrue(acc.IsActive);
+      Assert.AreEqual(command.AccountName, acc.Name);
+      Assert.AreEqual(command.AccountShortname, acc.ShortName);
+      Assert.AreEqual(command.AccountNumber, acc.Number);
+
+      var command2 = new OpenAccountCommand()
+      {
+        AccountName = "my_second_account",
+        AccountShortname = "second_shortname",
+        AccountNumber = "2345",
+        ParentAccountId = acc.Id
+      };
+      uut.OpenAccount(command2);
+
+      var acc1 = Context.Accounts.Find(acc.Id);
+      var acc2 = Context.Accounts.Find(command2.Account.Id);
+
+      Assert.IsNotNull(acc2.Parent);
+      Assert.AreEqual(1, acc1.Children.Count);
     }
 
 
@@ -68,6 +93,10 @@ namespace Accounting.Tests
       // act
       uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
     }
+
+    #endregion
+
+    #region UpdateAccountCommand
 
     /// <summary>
     /// This test ensures that an account can be updated when specifying an accountname, shortname or number
@@ -161,6 +190,170 @@ namespace Accounting.Tests
       uut.UpdateAccount(updateCommand);
     }
 
+    #endregion
+
+    #region CloseAccountCommand
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException), AllowDerivedTypes=true)]
+    public void CloseAccountRequiresAccountId()
+    {
+      var closeAccountCommand = new CloseAccountCommand()
+      {
+        AccountId = 0,
+        Recursive = false
+      };
+      var uut = Require<IAccountingFacade>();
+
+      uut.CloseAccount(closeAccountCommand);
+
+      Assert.Fail("Expected exception!");
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void CloseAccountRequiresValidAccount()
+    {
+      var closeAccountCommand = new CloseAccountCommand()
+      {
+        AccountId = 100,
+        Recursive = false
+      };
+      var uut = Require<IAccountingFacade>();
+
+      // sanity check: element should not exist in database
+      Assert.IsFalse(Context.Accounts.Any(x => x.Id == 100));
+
+      uut.CloseAccount(closeAccountCommand);
+
+      Assert.Fail("Expected exception!");
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void CloseAccountRequiresOpenAccount()
+    {
+      var uut = Require<IAccountingFacade>();
+      var open = new OpenAccountCommand()
+      {
+        AccountName = "A",
+        AccountNumber = "1000",
+        CategoryId = 0
+      };
+      uut.OpenAccount(open);
+      open.Account.IsActive = false;
+      Context.Entry(open.Account).State = EntityState.Modified;
+      Context.SaveChanges();
+
+      var closeAccountCommand = new CloseAccountCommand()
+      {
+        AccountId = open.Account.Id,
+        Recursive = false
+      };
+
+      uut.CloseAccount(closeAccountCommand);
+
+      Assert.Fail("Expected exception!");
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void CloseAccountRequiresBalancedAccount()
+    {
+      var uut = Require<IAccountingFacade>();
+
+      SetupTestdataInitialization init = new SetupTestdataInitialization(uut, Context);
+      // Use standard test environment setup
+      init.SetupAccountingEnvironment();
+
+      uut.CloseAccount(new CloseAccountCommand()
+      {
+        AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2.1").Id
+      });
+
+      Assert.Fail("Expected exception!");
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void CloseAccountRequiresClosedChildren()
+    {
+      var uut = Require<IAccountingFacade>();
+
+      SetupTestdataInitialization init = new SetupTestdataInitialization(uut, Context);
+      // Use standard test environment setup
+      init.SetupAccountingEnvironment();
+
+      uut.CloseAccount(new CloseAccountCommand()
+      {
+        AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto3").Id
+      });
+
+      Assert.Fail("Expected exception!");
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void CloseAccountHierarchieRequiresBalancedChildren()
+    {
+      var uut = Require<IAccountingFacade>();
+
+      SetupTestdataInitialization init = new SetupTestdataInitialization(uut, Context);
+      // Use standard test environment setup
+      init.SetupAccountingEnvironment();
+
+      uut.CloseAccount(new CloseAccountCommand()
+      {
+        AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto3").Id,
+        Recursive = true
+      });
+
+      Assert.Fail("Expected exception!");
+    }
+
+    [TestMethod]
+    public void ShouldCloseBalancedAccountWithoutChildren()
+    {
+      var uut = Require<IAccountingFacade>();
+
+      SetupTestdataInitialization init = new SetupTestdataInitialization(uut, Context);
+      // Use standard test environment setup
+      init.SetupAccountingEnvironment();
+
+      Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").IsActive);
+      uut.CloseAccount(new CloseAccountCommand()
+      {
+        AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").Id
+      });
+      Assert.IsFalse(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").IsActive);
+    }
+
+    [TestMethod]
+    public void ShouldRecursivelyCloseBalancedAccountWithBalancedChildren()
+    {
+      var uut = Require<IAccountingFacade>();
+
+      SetupTestdataInitialization init = new SetupTestdataInitialization(uut, Context);
+      // Use standard test environment setup
+      init.SetupAccountingEnvironment();
+
+      Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4").IsActive);
+      Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").IsActive);
+      Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.2").IsActive);
+      uut.CloseAccount(new CloseAccountCommand()
+      {
+        AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4").Id,
+        Recursive = true
+      });
+      Assert.IsFalse(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4").IsActive);
+      Assert.IsFalse(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").IsActive);
+      Assert.IsFalse(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.2").IsActive);
+    }
+
+    #endregion
+
+    #region BillTransactionCommand+Extensions
+
     [TestMethod]
     public void BillTransactionShouldWorkForABalancedTransactionWithAllData()
     {
@@ -192,6 +385,9 @@ namespace Accounting.Tests
       Assert.AreEqual(1, Context.Set<Transaction>().Count());
     }
 
+    #endregion
+
+    #region RevertTransactionCommand
 
     /// <summary>
     /// this test ensures that a storno creates another transaction whith inverted amounts
@@ -230,6 +426,10 @@ namespace Accounting.Tests
 
     }
 
+    #endregion
+
+    #region ListAccountCommand+Extensions
+
     [TestMethod]
     public void ShouldListNoAccountsWhenDbIsEmpty()
     {
@@ -256,7 +456,7 @@ namespace Accounting.Tests
       Assert.IsTrue(cmd.Query.Any(acc => acc.Name == "toeb2"));
     }
 
-    
+    #endregion
   }
 
 }

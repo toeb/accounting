@@ -18,9 +18,9 @@ namespace Application.Web
   {
     public void Configuration(IAppBuilder app)
     {
-      app.ServeVirtualDirectory("/bower_components", "~/Frontend/bower_components");
-      app.ServeVirtualDirectory("", "~/Frontend/dist/");
-      app.ServeVirtualDirectory("", "~/Frontend/src/");
+      //app.ServeVirtualDirectory("/bower_components", "~/Frontend/bower_components");
+      //app.ServeVirtualDirectory("", "~/Frontend/dist/");
+      //app.ServeVirtualDirectory("", "~/Frontend/src/");
 
       
       // Configure Web API for self-host. 
