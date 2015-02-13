@@ -74,3 +74,14 @@ yo angular:service servicename
 bower search angular-i18n // searches for packages named angular-i18n
 bower install --save angular-i18n // installes the library
 ```
+
+## Possible errors
+
+ * **unable to find local grunt**: ```npm install grunt --save-dev```
+
+Execute following commands when project does not start:
+
+```
+npm install
+bower install
+```
