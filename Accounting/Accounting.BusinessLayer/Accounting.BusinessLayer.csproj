@@ -49,7 +49,7 @@
     <Compile Include="Extensions\BillTransactionCommandExtensions.cs" />
     <Compile Include="Extensions\IAccountingFacadeExtensions.cs" />
     <Compile Include="IAccountingFacade.cs" />
-    <Compile Include="ListAccountCommand.cs" />
+    <Compile Include="Commands\ListAccountCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\UpdateAccountCommand.cs" />
     <Compile Include="Commands\RevertTransactionCommand.cs" />
