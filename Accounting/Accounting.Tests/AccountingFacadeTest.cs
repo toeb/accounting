@@ -45,7 +45,7 @@ namespace Accounting.Tests
       command.AccountNumber = "1234";
 
       // act
-      uut.OpenAccount(command);
+      uut.OpenAccountCommandHandler().Handle(command);
 
 
       // check the output properties of the command
@@ -65,7 +65,7 @@ namespace Accounting.Tests
         AccountNumber = "2345",
         ParentAccountId = acc.Id
       };
-      uut.OpenAccount(command2);
+      uut.OpenAccountCommandHandler().Handle(command2);
 
       var acc1 = Context.Accounts.Find(acc.Id);
       var acc2 = Context.Accounts.Find(command2.Account.Id);
@@ -91,7 +91,7 @@ namespace Accounting.Tests
       uow.Save();
 
       // act
-      uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
+      uut.OpenAccountCommandHandler().Handle(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
     }
 
     #endregion
@@ -108,7 +108,7 @@ namespace Accounting.Tests
       var uut = Require<IAccountingFacade>();
 
       OpenAccountCommand command;
-      uut.OpenAccount(command = new OpenAccountCommand()
+      uut.OpenAccountCommandHandler().Handle(command = new OpenAccountCommand()
       {
         AccountName = "my_updatable_account",
         AccountNumber = "100000"
@@ -163,13 +163,13 @@ namespace Accounting.Tests
       var uut = Require<IAccountingFacade>();
 
       OpenAccountCommand command;
-      uut.OpenAccount(command = new OpenAccountCommand()
+      uut.OpenAccountCommandHandler().Handle(command = new OpenAccountCommand()
       {
         AccountName = "my_account1",
         AccountNumber = "100000"
       });
 
-      uut.OpenAccount(new OpenAccountCommand()
+      uut.OpenAccountCommandHandler().Handle(new OpenAccountCommand()
       {
         AccountName = "my_account2",
         AccountNumber = "200000"
@@ -240,7 +240,7 @@ namespace Accounting.Tests
         AccountNumber = "1000",
         CategoryId = 0
       };
-      uut.OpenAccount(open);
+      uut.OpenAccountCommandHandler().Handle(open);
       open.Account.IsActive = false;
       Context.Entry(open.Account).State = EntityState.Modified;
       Context.SaveChanges();

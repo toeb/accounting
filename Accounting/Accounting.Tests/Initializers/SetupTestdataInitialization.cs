@@ -44,7 +44,7 @@ namespace Accounting.Tests.Initializers
 
         SetupCategory(categoryname);
         var parent = Context.Accounts.FirstOrDefault(x => x.Name == parentname);
-        Facade.OpenAccount(new OpenAccountCommand()
+        Facade.OpenAccountCommandHandler().Handle(new OpenAccountCommand()
         {
           AccountName = name,
           AccountNumber = number,
