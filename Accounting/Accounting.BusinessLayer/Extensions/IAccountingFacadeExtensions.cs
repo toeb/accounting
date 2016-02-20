@@ -28,7 +28,7 @@ namespace Accounting.BusinessLayer
       var command = new OpenAccountCommand();
       command.AccountName = accountName;
       command.AccountNumber = accountNumber;
-      self.OpenAccount(command);
+      self.OpenAccountCommandHandler().Handle(command);
       return command;
     }
 

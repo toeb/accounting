@@ -40,7 +40,7 @@ namespace Application.Web.Controllers
     [HttpPost]
     public async Task<OpenAccountCommand> OpenAccount([FromBody] OpenAccountCommand command)
     {
-      AccountingFacade.OpenAccount(command);
+      AccountingFacade.OpenAccountCommandHandler().Handle(command);
 
       return command;
     }

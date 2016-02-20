@@ -7,12 +7,14 @@ namespace Accounting.BusinessLayer
 {
   public interface IAccountingFacade
   {
+
     /// <summary>
-    /// Opens an account / performs validation on the account which is to be opened
-    /// throws Invalidoperatioexception if the commands values are not valid
+    /// The returned handler opens an account / performs validation on the account which is to be opened
+    /// throws InvalidOperationException if the commands values are not valid.
+    /// For multiple invalid properties, the exception contains an inner AggregateException with details
     /// </summary>
     /// <param name="command"></param>
-    void OpenAccount(OpenAccountCommand command);
+    ICommandHandler<OpenAccountCommand> OpenAccountCommandHandler();
 
     /// <summary>
     /// Updates an existing account by modifying any of the secondary properties

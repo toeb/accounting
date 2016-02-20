@@ -12,40 +12,43 @@ namespace Accounting.BusinessLayer
   [Export(typeof(IAccountingFacade))]
   public class AccountingFacade : IAccountingFacade
   {
-    [Import]
-    public IUnitOfWork UnitOfWork { get; set; }
+    protected IUnitOfWork UnitOfWork;
 
-
-    public void OpenAccount(OpenAccountCommand command)
+    [ImportingConstructor]
+    public AccountingFacade(IUnitOfWork unitOfWork)
     {
-      if (command == null) throw new ArgumentNullException("command");
-      if (string.IsNullOrWhiteSpace(command.AccountName)) throw new InvalidOperationException("accountname may not be whitespace empty");
-      if (string.IsNullOrWhiteSpace(command.AccountNumber)) throw new InvalidOperationException("acccount number may not be null or empty");
-
-      if (UnitOfWork.GetRepository<Account>().Get(acc => acc.Name == command.AccountName || acc.Number == command.AccountNumber).Any()) throw new InvalidOperationException("account name or number is not unique");
-
-      Account parent = null;
-      if (command.ParentAccountId.HasValue)
-      {
-        parent = UnitOfWork.GetRepository<Account>().GetByID(command.ParentAccountId);
-      }
-
-
-      var account = new Account()
-      {
-        Name = command.AccountName,
-        Number = command.AccountNumber,
-        ShortName = command.AccountShortname,
-        Parent = parent,
-        IsActive = true
-      };
-
-      UnitOfWork.GetRepository<Account>().Create(account);
-
-      command.Account = account;
-
-      UnitOfWork.Save();
+      this.UnitOfWork = unitOfWork;
     }
+
+    #region Get Handler methods
+
+    /**************************************************************
+     * Decorator concept:
+     * - Define common actions that should be executed before/after
+     *   Validate(...) or Handle(...) of a specific handler.
+     * 
+     * Example: ensure, that Validate(...) is always called before
+     *   Handle(...)
+     **************************************************************/
+    /// <summary>
+    /// Decorate a handler with common pre/post tasks
+    /// </summary>
+    /// <returns>A compatible ICommandHandler object, that probably contains the original handler</returns>
+    protected ICommandHandler<TCommand> DecorateHandler<TCommand>(ICommandHandler<TCommand> handler)
+    {
+      return new ValidatingHandlerDecorator<TCommand>(handler);
+    }
+
+    //------------------------------------------------------------------------
+
+    public ICommandHandler<OpenAccountCommand> OpenAccountCommandHandler()
+    {
+      return DecorateHandler(new OpenAccountCommandHandler(UnitOfWork));
+    }
+    // ... other handler creation methods to follow
+
+    #endregion
+
 
     /// <exception cref="System.ArgumentNullException">May be thrown when command is null</exception>
     /// <exception cref="System.ArgumentException">May be thrown when command account id is 0 or less</exception>
@@ -196,12 +199,12 @@ namespace Accounting.BusinessLayer
 
       Trace.TraceInformation("Billing a transaction");
 
-      
+
       if (command == null) throw new ArgumentNullException("command");
-      
-      if(string.IsNullOrWhiteSpace(command.TransactionText))throw new InvalidOperationException("transaction does not have a text");
-      if(string.IsNullOrWhiteSpace(command.Receipt))throw new InvalidOperationException("transaction does not have a receipt");
-      if(!command.ReceiptDate.HasValue)throw new InvalidOperationException("transaction needs a valid receipt date");
+
+      if (string.IsNullOrWhiteSpace(command.TransactionText)) throw new InvalidOperationException("transaction does not have a text");
+      if (string.IsNullOrWhiteSpace(command.Receipt)) throw new InvalidOperationException("transaction does not have a receipt");
+      if (!command.ReceiptDate.HasValue) throw new InvalidOperationException("transaction needs a valid receipt date");
 
 
       if (command.Credits == null) throw new InvalidOperationException("credits may not be null");
@@ -219,21 +222,22 @@ namespace Accounting.BusinessLayer
 
       var transactions = CreatePartialTransactions(Accounts, command.Credits, PartialTransactionType.Credit)
         .Concat(CreatePartialTransactions(Accounts, command.Debits, PartialTransactionType.Debit)).ToList();
-      
 
-      
+
+
 
       Trace.TraceInformation("Transaction is valid adding it to database");
 
-      var transaction= new Transaction(){
+      var transaction = new Transaction()
+      {
         ReceiptDate = command.ReceiptDate.Value,
         ReceiptNumber = command.Receipt,
         Text = command.TransactionText,
-        Storno= null,
+        Storno = null,
         CreationDate = DateTime.Now,
-        LastModified= DateTime.Now,
+        LastModified = DateTime.Now,
         Partials = transactions
-        
+
       };
 
       Transactions.Create(transaction);
@@ -253,7 +257,7 @@ namespace Accounting.BusinessLayer
       var accounts = UnitOfWork.GetRepository<Account>();
 
 
-      var transactionToRevert= transactions.GetByID(command.TransactionId);
+      var transactionToRevert = transactions.GetByID(command.TransactionId);
       if (transactionToRevert == null) throw new InvalidOperationException("the transaction to revert does not exist");
 
 
@@ -262,8 +266,8 @@ namespace Accounting.BusinessLayer
         Storno = transactionToRevert,
         ReceiptDate = transactionToRevert.ReceiptDate,
         ReceiptNumber = transactionToRevert.ReceiptNumber,
-        Text = string.IsNullOrWhiteSpace(command.Text)?"Storno: "+ transactionToRevert.Text:command.Text,
-        Partials = transactionToRevert.Partials.Select(p => new PartialTransaction() { Amount = -p.Amount, Type = p.Type}).ToList()
+        Text = string.IsNullOrWhiteSpace(command.Text) ? "Storno: " + transactionToRevert.Text : command.Text,
+        Partials = transactionToRevert.Partials.Select(p => new PartialTransaction() { Amount = -p.Amount, Type = p.Type }).ToList()
       };
 
       transactionToRevert.Storno = revertedTransaction;
