@@ -1,4 +1,5 @@
-﻿using Accounting.Model;
+﻿using Accounting.BusinessLayer.CommandHandlers;
+using Accounting.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -45,49 +46,14 @@ namespace Accounting.BusinessLayer
     {
       return DecorateHandler(new OpenAccountCommandHandler(UnitOfWork));
     }
+
+    public ICommandHandler<UpdateAccountCommand> UpdateAccountCommandHandler()
+    {
+      return DecorateHandler(new UpdateAccountCommandHandler(UnitOfWork));
+    }
     // ... other handler creation methods to follow
 
     #endregion
-
-
-    /// <exception cref="System.ArgumentNullException">May be thrown when command is null</exception>
-    /// <exception cref="System.ArgumentException">May be thrown when command account id is 0 or less</exception>
-    /// <exception cref="System.InvalidOperationException">May be thrown when command properties are invalid</exception>
-    public void UpdateAccount(UpdateAccountCommand command)
-    {
-      if (command == null) throw new ArgumentNullException("command");
-      if (command.AccountId <= 0) throw new ArgumentException("command.AccountId");
-      if (command.ModifiedAccount != null) throw new ArgumentException("command.ModifiedAccount expected to be null");
-      if (command.NewName != null && string.IsNullOrWhiteSpace(command.NewName)) throw new InvalidOperationException("account name may not be whitespace or empty");
-      if (command.NewShortName != null && string.IsNullOrWhiteSpace(command.NewShortName)) throw new InvalidOperationException("acccount number may not be whitespace or empty");
-      if (command.NewNumber != null && string.IsNullOrWhiteSpace(command.NewNumber)) throw new InvalidOperationException("acccount number may not be whitespace or empty");
-
-      var account = UnitOfWork.GetRepository<Account>().GetByID(command.AccountId);
-
-      if (command.NewName != null)
-      {
-        if (UnitOfWork.GetRepository<Account>().Get(acc => acc.Name == command.NewName).Any()) throw new InvalidOperationException("account name is not unique");
-        account.Name = command.NewName;
-      }
-
-      if (command.NewShortName != null)
-      {
-        if (UnitOfWork.GetRepository<Account>().Get(acc => acc.ShortName == command.NewShortName).Any()) throw new InvalidOperationException("account shortname is not unique");
-        account.ShortName = command.NewShortName;
-      }
-
-      if (command.NewNumber != null)
-      {
-        if (UnitOfWork.GetRepository<Account>().Get(acc => acc.Number == command.NewNumber).Any()) throw new InvalidOperationException("account number is not unique");
-        account.Number = command.NewNumber;
-      }
-
-      UnitOfWork.GetRepository<Account>().Update(account);
-
-      command.ModifiedAccount = account;
-
-      UnitOfWork.Save();
-    }
 
 
     // checks balance for specified account, requires 0 balance

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Accounting.BusinessLayer
+namespace Accounting.BusinessLayer.CommandHandlers
 {
   class OpenAccountCommandHandler : ICommandHandler<OpenAccountCommand>
   {

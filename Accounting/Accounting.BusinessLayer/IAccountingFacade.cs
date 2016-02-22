@@ -17,11 +17,11 @@ namespace Accounting.BusinessLayer
     ICommandHandler<OpenAccountCommand> OpenAccountCommandHandler();
 
     /// <summary>
-    /// Updates an existing account by modifying any of the secondary properties
+    /// The returned handler updates an existing account by modifying any of the secondary properties
     /// Number, ShortName, Name
     /// </summary>
     /// <param name="command"></param>
-    void UpdateAccount(UpdateAccountCommand command);
+    ICommandHandler<UpdateAccountCommand> UpdateAccountCommandHandler();
 
     /// <summary>
     /// Closes an existing account by setting the isActive field to false

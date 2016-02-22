@@ -125,7 +125,7 @@ namespace Accounting.Tests
         NewShortName = "updated_account"
       };
 
-      uut.UpdateAccount(updateCommand);
+      uut.UpdateAccountCommandHandler().Handle(updateCommand);
 
       // assert
       Assert.IsNotNull(updateCommand.ModifiedAccount);
@@ -142,7 +142,7 @@ namespace Accounting.Tests
         NewNumber = "100001"
       };
 
-      uut.UpdateAccount(updateCommand);
+      uut.UpdateAccountCommandHandler().Handle(updateCommand);
 
       // assert
       Assert.IsNotNull(updateCommand.ModifiedAccount);
@@ -187,7 +187,7 @@ namespace Accounting.Tests
         NewNumber = "200000"
       };
 
-      uut.UpdateAccount(updateCommand);
+      uut.UpdateAccountCommandHandler().Handle(updateCommand);
     }
 
     #endregion
