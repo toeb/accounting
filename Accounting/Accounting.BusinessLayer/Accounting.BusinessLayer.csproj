@@ -46,6 +46,7 @@
     <Compile Include="CommandHandlers\BillTransactionCommandHandler.cs" />
     <Compile Include="CommandHandlers\CloseAccountCommandHandler.cs" />
     <Compile Include="CommandHandlers\OpenAccountCommandHandler.cs" />
+    <Compile Include="CommandHandlers\RevertTransactionCommandHandler.cs" />
     <Compile Include="CommandHandlers\UpdateAccountCommandHandler.cs" />
     <Compile Include="CommandInterfaces.cs" />
     <Compile Include="Commands\CloseAccountCommand.cs" />

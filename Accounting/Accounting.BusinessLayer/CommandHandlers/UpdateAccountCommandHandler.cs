@@ -48,6 +48,8 @@ namespace Accounting.BusinessLayer.CommandHandlers
     public bool Validate(UpdateAccountCommand command, out IEnumerable<Exception> ValidationErrors)
     {
       var errors = new List<Exception>();
+      ValidationErrors = errors;
+
       if (command == null)
       {
         errors.Add(new ArgumentNullException("command"));
@@ -72,7 +74,7 @@ namespace Accounting.BusinessLayer.CommandHandlers
       {
         errors.Add(new InvalidOperationException("acccount number may not be whitespace or empty"));
       }
-      ValidationErrors = errors.Count == 0 ? null : errors;
+
       return errors.Count == 0;
     }
   }

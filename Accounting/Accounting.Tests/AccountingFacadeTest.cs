@@ -411,7 +411,7 @@ namespace Accounting.Tests
        TransactionId = transaction.Id 
       };
 
-      uut.RevertTransaction(cmd);
+      uut.RevertTransactionCommandHandler().Handle(cmd);
 
       // assert
 

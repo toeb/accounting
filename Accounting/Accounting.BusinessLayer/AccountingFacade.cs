@@ -61,42 +61,14 @@ namespace Accounting.BusinessLayer
     {
       return DecorateHandler(new BillTransactionCommandHandler(UnitOfWork));
     }
+
+    public ICommandHandler<RevertTransactionCommand> RevertTransactionCommandHandler()
+    {
+      return DecorateHandler(new RevertTransactionCommandHandler(UnitOfWork));
+    }
     // ... other handler creation methods to follow
 
     #endregion
-
-
-    public void RevertTransaction(RevertTransactionCommand command)
-    {
-
-      var transactions = UnitOfWork.GetRepository<Transaction>();
-      var accounts = UnitOfWork.GetRepository<Account>();
-
-
-      var transactionToRevert = transactions.GetByID(command.TransactionId);
-      if (transactionToRevert == null) throw new InvalidOperationException("the transaction to revert does not exist");
-
-
-      var revertedTransaction = new Transaction()
-      {
-        Storno = transactionToRevert,
-        ReceiptDate = transactionToRevert.ReceiptDate,
-        ReceiptNumber = transactionToRevert.ReceiptNumber,
-        Text = string.IsNullOrWhiteSpace(command.Text) ? "Storno: " + transactionToRevert.Text : command.Text,
-        Partials = transactionToRevert.Partials.Select(p => new PartialTransaction() { Amount = -p.Amount, Type = p.Type }).ToList()
-      };
-
-      transactionToRevert.Storno = revertedTransaction;
-
-      transactions.Create(revertedTransaction);
-      transactions.Update(transactionToRevert);
-      UnitOfWork.Save();
-
-      transactions.Refresh(revertedTransaction.Storno);
-      transactions.Refresh(revertedTransaction);
-
-      command.RevertedTransaction = revertedTransaction;
-    }
 
 
 

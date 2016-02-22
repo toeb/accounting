@@ -7,7 +7,6 @@ namespace Accounting.BusinessLayer
 {
   public interface IAccountingFacade
   {
-
     /// <summary>
     /// The returned handler opens an account / performs validation on the account which is to be opened
     /// throws InvalidOperationException if the commands values are not valid.
@@ -32,16 +31,12 @@ namespace Accounting.BusinessLayer
     ICommandHandler<BillTransactionCommand> BillTransactionCommandHandler();
 
     /// <summary>
-    /// causes a transaction to be reverted - a new transaction with inverted values is added and connected to the original transaction
+    /// The returned handler causes a transaction to be reverted - a new transaction with inverted values is added and connected to the original transaction
     /// </summary>
-    /// <param name="command"></param>
-    void RevertTransaction(RevertTransactionCommand command);
+    ICommandHandler<RevertTransactionCommand> RevertTransactionCommandHandler();
 
 
     void ListAccounts(ListAccountsCommand command);
 
   }
-
-
-
 }

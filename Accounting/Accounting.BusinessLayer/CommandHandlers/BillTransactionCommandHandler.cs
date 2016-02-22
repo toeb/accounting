@@ -50,6 +50,8 @@ namespace Accounting.BusinessLayer.CommandHandlers
     public bool Validate(BillTransactionCommand command, out IEnumerable<Exception> ValidationErrors)
     {
       var errors = new List<Exception>();
+      ValidationErrors = errors;
+
       if (command == null)
       {
         errors.Add(new ArgumentNullException("command"));
@@ -106,13 +108,11 @@ namespace Accounting.BusinessLayer.CommandHandlers
         }
       }
 
-      ValidationErrors = errors.Count == 0 ? null : errors;
       return errors.Count == 0;
     }
 
 
     #region Helper methods
-
 
     private static IEnumerable<PartialTransaction> CreatePartialTransactions(
       IRepository<Account> Accounts,
