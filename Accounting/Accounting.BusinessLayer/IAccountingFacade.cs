@@ -13,21 +13,18 @@ namespace Accounting.BusinessLayer
     /// throws InvalidOperationException if the commands values are not valid.
     /// For multiple invalid properties, the exception contains an inner AggregateException with details
     /// </summary>
-    /// <param name="command"></param>
     ICommandHandler<OpenAccountCommand> OpenAccountCommandHandler();
 
     /// <summary>
     /// The returned handler updates an existing account by modifying any of the secondary properties
     /// Number, ShortName, Name
     /// </summary>
-    /// <param name="command"></param>
     ICommandHandler<UpdateAccountCommand> UpdateAccountCommandHandler();
 
     /// <summary>
-    /// Closes an existing account by setting the isActive field to false
+    /// The returned handler closes an existing account by setting the isActive field to false
     /// </summary>
-    /// <param name="command">Contains the account to close</param>
-    void CloseAccount(CloseAccountCommand command);
+    ICommandHandler<CloseAccountCommand> CloseAccountCommandHandler();
 
     void BillTransaction(BillTransactionCommand command);
 

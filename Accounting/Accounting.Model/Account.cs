@@ -7,6 +7,11 @@ namespace Accounting.Model
 {
   public class Account : Meta
   {
+    public Account()
+    {
+      Children = new List<Account>();
+    }
+
     public bool IsActive { get; set; }
     public string Name
     {

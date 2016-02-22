@@ -205,7 +205,7 @@ namespace Accounting.Tests
       };
       var uut = Require<IAccountingFacade>();
 
-      uut.CloseAccount(closeAccountCommand);
+      uut.CloseAccountCommandHandler().Handle(closeAccountCommand);
 
       Assert.Fail("Expected exception!");
     }
@@ -224,7 +224,7 @@ namespace Accounting.Tests
       // sanity check: element should not exist in database
       Assert.IsFalse(Context.Accounts.Any(x => x.Id == 100));
 
-      uut.CloseAccount(closeAccountCommand);
+      uut.CloseAccountCommandHandler().Handle(closeAccountCommand);
 
       Assert.Fail("Expected exception!");
     }
@@ -251,7 +251,7 @@ namespace Accounting.Tests
         Recursive = false
       };
 
-      uut.CloseAccount(closeAccountCommand);
+      uut.CloseAccountCommandHandler().Handle(closeAccountCommand);
 
       Assert.Fail("Expected exception!");
     }
@@ -266,7 +266,7 @@ namespace Accounting.Tests
       // Use standard test environment setup
       init.SetupAccountingEnvironment();
 
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2.1").Id
       });
@@ -284,7 +284,7 @@ namespace Accounting.Tests
       // Use standard test environment setup
       init.SetupAccountingEnvironment();
 
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto3").Id
       });
@@ -302,7 +302,7 @@ namespace Accounting.Tests
       // Use standard test environment setup
       init.SetupAccountingEnvironment();
 
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto3").Id,
         Recursive = true
@@ -321,7 +321,7 @@ namespace Accounting.Tests
       init.SetupAccountingEnvironment();
 
       Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").IsActive);
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").Id
       });
@@ -340,7 +340,7 @@ namespace Accounting.Tests
       Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4").IsActive);
       Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").IsActive);
       Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.2").IsActive);
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4").Id,
         Recursive = true
