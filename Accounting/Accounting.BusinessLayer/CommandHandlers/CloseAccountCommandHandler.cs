@@ -22,14 +22,10 @@ namespace Accounting.BusinessLayer.CommandHandlers
 
       if (command.Recursive)
       {
-        CheckAccountsForCloseRecursive(AccToClose);
         CloseAccountsRecursive(AccToClose);
       }
       else
       {
-        CheckAccountForClose(AccToClose);
-        // FIX: empty children-list may be null instead
-        if (AccToClose.Children != null && AccToClose.Children.Any(x => x.IsActive)) throw new InvalidOperationException("Account " + AccToClose.Id + " has active children and the close command was not called recursively!");
         CloseAccountInternal(AccToClose);
       }
       command.ClosedAccount = AccToClose;
@@ -65,6 +61,18 @@ namespace Accounting.BusinessLayer.CommandHandlers
         {
           errors.Add(new InvalidOperationException("The specified Account is already closed!"));
         }
+        else if (command.Recursive)
+        {
+          CheckAccountsForCloseRecursive(AccToClose, errors);
+        }
+        else
+        {
+          CheckAccountForClose(AccToClose, errors);
+          if (AccToClose.Children.Any(x => x.IsActive))
+          {
+            errors.Add(new InvalidOperationException("Account " + AccToClose.Id + " has active children and the close command was not called recursively!"));
+          }
+        }
       }
 
       ValidationErrors = errors.Count == 0 ? null : errors;
@@ -74,25 +82,28 @@ namespace Accounting.BusinessLayer.CommandHandlers
     #region Helper methods
 
     // checks balance for specified account, requires 0 balance
-    private void CheckAccountForClose(Account account)
+    private void CheckAccountForClose(Account account, ICollection<Exception> errors)
     {
       var TransRepo = UnitOfWork.GetRepository<PartialTransaction>();
       decimal Credit = TransRepo.Get(x => x.Account.Id == account.Id && x.Type == PartialTransactionType.Credit).Sum(x => x.Amount);
       decimal Debit = TransRepo.Get(x => x.Account.Id == account.Id && x.Type == PartialTransactionType.Debit).Sum(x => x.Amount);
 
-      if (Credit != Debit) throw new InvalidOperationException("Account " + account.Id + " is not balanced!");
+      if (Credit != Debit)
+      {
+        errors.Add(new InvalidOperationException("Account " + account.Id + " is not balanced!"));
+      }
     }
     // recursively checks the startAt account and all of its children
-    private void CheckAccountsForCloseRecursive(Account startAt)
+    private void CheckAccountsForCloseRecursive(Account startAt, ICollection<Exception> errors)
     {
       if (startAt.IsActive)
       {
-        CheckAccountForClose(startAt);
+        CheckAccountForClose(startAt, errors);
       }
 
       foreach (var child in startAt.Children)
       {
-        CheckAccountsForCloseRecursive(child);
+        CheckAccountsForCloseRecursive(child, errors);
       }
     }
     // sets isActive of account to false and marks the change for saving
