@@ -142,7 +142,7 @@ namespace Accounting.Tests.Initializers
       AddCreditorToTransaction(transaction, "Personenkonto2", 10m);
       AddCreditorToTransaction(transaction, "Personenkonto2.1", 15m);
       AddDebitorToTransaction(transaction, "Konto1", 30.5m);
-      Facade.BillTransaction(transaction);
+      Facade.BillTransactionCommandHandler().Handle(transaction);
 
       transaction = PrepareBillTransactionCommand("Test - Many to Many transaction", "2", new DateTime(1999, 1, 1));
 
@@ -151,7 +151,7 @@ namespace Accounting.Tests.Initializers
       AddDebitorToTransaction(transaction, "Personenkonto1", 10m);
       AddDebitorToTransaction(transaction, "Personenkonto2", 10m);
       AddDebitorToTransaction(transaction, "Personenkonto2.2", 10m);
-      Facade.BillTransaction(transaction);
+      Facade.BillTransactionCommandHandler().Handle(transaction);
 
       // not closable (unbalanced) account hierarchie with balanced head account
       SetupAccount("Personenkonto3", "P00003", "PK3", "Buchungskonto", "Personenkonten");
@@ -163,11 +163,11 @@ namespace Accounting.Tests.Initializers
       AddCreditorToTransaction(transaction, "Personenkonto3", 10m);
       AddDebitorToTransaction(transaction, "Personenkonto3.1", 5m);
       AddDebitorToTransaction(transaction, "Personenkonto3.2", 5m);
-      Facade.BillTransaction(transaction);
+      Facade.BillTransactionCommandHandler().Handle(transaction);
       transaction = PrepareBillTransactionCommand("Test - Head-Balanced Part 2", "12", new DateTime(1999, 1, 1));
       AddCreditorToTransaction(transaction, "Personenkonto3.1", 10m);
       AddDebitorToTransaction(transaction, "Personenkonto3", 10m);
-      Facade.BillTransaction(transaction);
+      Facade.BillTransactionCommandHandler().Handle(transaction);
 
       // closable (balanced) account hierarchie
       SetupAccount("Personenkonto4", "P00004", "PK4", "Buchungskonto", "Personenkonten");
@@ -178,15 +178,15 @@ namespace Accounting.Tests.Initializers
       transaction = PrepareBillTransactionCommand("Test - Transaction Circle Part 1", "21", new DateTime(1999, 1, 1));
       AddCreditorToTransaction(transaction, "Personenkonto4", 5m);
       AddDebitorToTransaction(transaction, "Personenkonto4.1", 5m);
-      Facade.BillTransaction(transaction);
+      Facade.BillTransactionCommandHandler().Handle(transaction);
       transaction = PrepareBillTransactionCommand("Test - Transaction Circle Part 2", "22", new DateTime(1999, 1, 1));
       AddCreditorToTransaction(transaction, "Personenkonto4.1", 5m);
       AddDebitorToTransaction(transaction, "Personenkonto4.2", 5m);
-      Facade.BillTransaction(transaction);
+      Facade.BillTransactionCommandHandler().Handle(transaction);
       transaction = PrepareBillTransactionCommand("Test - Transaction Circle Part 3", "23", new DateTime(1999, 1, 1));
       AddCreditorToTransaction(transaction, "Personenkonto4.2", 5m);
       AddDebitorToTransaction(transaction, "Personenkonto4", 5m);
-      Facade.BillTransaction(transaction);
+      Facade.BillTransactionCommandHandler().Handle(transaction);
     }
 
   }

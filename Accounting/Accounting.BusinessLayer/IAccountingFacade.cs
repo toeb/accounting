@@ -26,7 +26,10 @@ namespace Accounting.BusinessLayer
     /// </summary>
     ICommandHandler<CloseAccountCommand> CloseAccountCommandHandler();
 
-    void BillTransaction(BillTransactionCommand command);
+    /// <summary>
+    /// The returned handler creates a transaction with all associated partial transactions
+    /// </summary>
+    ICommandHandler<BillTransactionCommand> BillTransactionCommandHandler();
 
     /// <summary>
     /// causes a transaction to be reverted - a new transaction with inverted values is added and connected to the original transaction

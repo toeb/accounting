@@ -19,8 +19,8 @@ namespace Accounting.BusinessLayer
       command.TransactionText = "Manual Transaction";
       command.AddDebitor(amount, debitor.Id);
       command.AddCreditor(amount, creditor.Id);
-  
-      self.BillTransaction(command);
+
+      self.BillTransactionCommandHandler().Handle(command);
       return command;
     }
     public static OpenAccountCommand OpenAccount(this IAccountingFacade self, string accountName,string accountNumber)

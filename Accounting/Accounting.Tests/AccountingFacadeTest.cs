@@ -379,7 +379,7 @@ namespace Accounting.Tests
       cmd.AddDebitor(5, matthias.Id);
 
 
-      uut.BillTransaction(cmd);
+      uut.BillTransactionCommandHandler().Handle(cmd);
 
       Assert.AreEqual(3, Context.Set<PartialTransaction>().Count());
       Assert.AreEqual(1, Context.Set<Transaction>().Count());

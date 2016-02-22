@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="AccountingApplication.cs" />
     <Compile Include="AccountingFacade.cs" />
+    <Compile Include="CommandHandlers\BillTransactionCommandHandler.cs" />
     <Compile Include="CommandHandlers\CloseAccountCommandHandler.cs" />
     <Compile Include="CommandHandlers\OpenAccountCommandHandler.cs" />
     <Compile Include="CommandHandlers\UpdateAccountCommandHandler.cs" />
