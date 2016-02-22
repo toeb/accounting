@@ -448,7 +448,7 @@ namespace Accounting.Tests
       uut.OpenAccount("toeb2", "234");
 
       var cmd = new ListAccountsCommand();
-      uut.ListAccounts(cmd);
+      uut.ListAccountsQueryHandler().Handle(cmd);
 
       Assert.IsNotNull(cmd.Query);
       Assert.AreEqual(2, cmd.Query.Count());

@@ -35,7 +35,7 @@ namespace Accounting.BusinessLayer
     public static ListAccountsCommand ListAccounts(this IAccountingFacade self)
     {
       var cmd = new ListAccountsCommand();
-      self.ListAccounts(cmd);
+      self.ListAccountsQueryHandler().Handle(cmd);
       return cmd;
     }
     public static IQueryable<Account> QueryAccounts(this IAccountingFacade self)

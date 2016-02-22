@@ -1,4 +1,5 @@
 ﻿using Accounting.BusinessLayer.CommandHandlers;
+using Accounting.BusinessLayer.QueryHandlers;
 using Accounting.Model;
 using System;
 using System.Collections.Generic;
@@ -66,17 +67,12 @@ namespace Accounting.BusinessLayer
     {
       return DecorateHandler(new RevertTransactionCommandHandler(UnitOfWork));
     }
-    // ... other handler creation methods to follow
+
+    public ICommandHandler<ListAccountsCommand> ListAccountsQueryHandler()
+    {
+      return DecorateHandler(new ListAccountsQueryHandler(UnitOfWork));
+    }
 
     #endregion
-
-
-
-    public void ListAccounts(ListAccountsCommand command)
-    {
-      /// future: chck if user is allowed to access account
-      var accounts = UnitOfWork.GetRepository<Account>();
-      command.Query = accounts.Read().Where(acc => acc.IsActive);
-    }
   }
 }

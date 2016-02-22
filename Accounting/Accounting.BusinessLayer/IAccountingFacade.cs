@@ -35,8 +35,9 @@ namespace Accounting.BusinessLayer
     /// </summary>
     ICommandHandler<RevertTransactionCommand> RevertTransactionCommandHandler();
 
-
-    void ListAccounts(ListAccountsCommand command);
-
+    /// <summary>
+    /// Query handler to retrieve active accounts from database
+    /// </summary>
+    ICommandHandler<ListAccountsCommand> ListAccountsQueryHandler();
   }
 }
