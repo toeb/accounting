@@ -45,7 +45,7 @@ namespace Accounting.Tests
       command.AccountNumber = "1234";
 
       // act
-      uut.OpenAccount(command);
+      uut.OpenAccountCommandHandler().Handle(command);
 
 
       // check the output properties of the command
@@ -65,7 +65,7 @@ namespace Accounting.Tests
         AccountNumber = "2345",
         ParentAccountId = acc.Id
       };
-      uut.OpenAccount(command2);
+      uut.OpenAccountCommandHandler().Handle(command2);
 
       var acc1 = Context.Accounts.Find(acc.Id);
       var acc2 = Context.Accounts.Find(command2.Account.Id);
@@ -91,7 +91,7 @@ namespace Accounting.Tests
       uow.Save();
 
       // act
-      uut.OpenAccount(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
+      uut.OpenAccountCommandHandler().Handle(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
     }
 
     #endregion
@@ -108,7 +108,7 @@ namespace Accounting.Tests
       var uut = Require<IAccountingFacade>();
 
       OpenAccountCommand command;
-      uut.OpenAccount(command = new OpenAccountCommand()
+      uut.OpenAccountCommandHandler().Handle(command = new OpenAccountCommand()
       {
         AccountName = "my_updatable_account",
         AccountNumber = "100000"
@@ -125,7 +125,7 @@ namespace Accounting.Tests
         NewShortName = "updated_account"
       };
 
-      uut.UpdateAccount(updateCommand);
+      uut.UpdateAccountCommandHandler().Handle(updateCommand);
 
       // assert
       Assert.IsNotNull(updateCommand.ModifiedAccount);
@@ -142,7 +142,7 @@ namespace Accounting.Tests
         NewNumber = "100001"
       };
 
-      uut.UpdateAccount(updateCommand);
+      uut.UpdateAccountCommandHandler().Handle(updateCommand);
 
       // assert
       Assert.IsNotNull(updateCommand.ModifiedAccount);
@@ -163,13 +163,13 @@ namespace Accounting.Tests
       var uut = Require<IAccountingFacade>();
 
       OpenAccountCommand command;
-      uut.OpenAccount(command = new OpenAccountCommand()
+      uut.OpenAccountCommandHandler().Handle(command = new OpenAccountCommand()
       {
         AccountName = "my_account1",
         AccountNumber = "100000"
       });
 
-      uut.OpenAccount(new OpenAccountCommand()
+      uut.OpenAccountCommandHandler().Handle(new OpenAccountCommand()
       {
         AccountName = "my_account2",
         AccountNumber = "200000"
@@ -187,7 +187,7 @@ namespace Accounting.Tests
         NewNumber = "200000"
       };
 
-      uut.UpdateAccount(updateCommand);
+      uut.UpdateAccountCommandHandler().Handle(updateCommand);
     }
 
     #endregion
@@ -205,7 +205,7 @@ namespace Accounting.Tests
       };
       var uut = Require<IAccountingFacade>();
 
-      uut.CloseAccount(closeAccountCommand);
+      uut.CloseAccountCommandHandler().Handle(closeAccountCommand);
 
       Assert.Fail("Expected exception!");
     }
@@ -224,7 +224,7 @@ namespace Accounting.Tests
       // sanity check: element should not exist in database
       Assert.IsFalse(Context.Accounts.Any(x => x.Id == 100));
 
-      uut.CloseAccount(closeAccountCommand);
+      uut.CloseAccountCommandHandler().Handle(closeAccountCommand);
 
       Assert.Fail("Expected exception!");
     }
@@ -240,7 +240,7 @@ namespace Accounting.Tests
         AccountNumber = "1000",
         CategoryId = 0
       };
-      uut.OpenAccount(open);
+      uut.OpenAccountCommandHandler().Handle(open);
       open.Account.IsActive = false;
       Context.Entry(open.Account).State = EntityState.Modified;
       Context.SaveChanges();
@@ -251,7 +251,7 @@ namespace Accounting.Tests
         Recursive = false
       };
 
-      uut.CloseAccount(closeAccountCommand);
+      uut.CloseAccountCommandHandler().Handle(closeAccountCommand);
 
       Assert.Fail("Expected exception!");
     }
@@ -266,7 +266,7 @@ namespace Accounting.Tests
       // Use standard test environment setup
       init.SetupAccountingEnvironment();
 
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto2.1").Id
       });
@@ -284,7 +284,7 @@ namespace Accounting.Tests
       // Use standard test environment setup
       init.SetupAccountingEnvironment();
 
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto3").Id
       });
@@ -302,7 +302,7 @@ namespace Accounting.Tests
       // Use standard test environment setup
       init.SetupAccountingEnvironment();
 
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto3").Id,
         Recursive = true
@@ -321,7 +321,7 @@ namespace Accounting.Tests
       init.SetupAccountingEnvironment();
 
       Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").IsActive);
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").Id
       });
@@ -340,7 +340,7 @@ namespace Accounting.Tests
       Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4").IsActive);
       Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.1").IsActive);
       Assert.IsTrue(Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4.2").IsActive);
-      uut.CloseAccount(new CloseAccountCommand()
+      uut.CloseAccountCommandHandler().Handle(new CloseAccountCommand()
       {
         AccountId = Context.Accounts.FirstOrDefault(x => x.Name == "Personenkonto4").Id,
         Recursive = true
@@ -379,7 +379,7 @@ namespace Accounting.Tests
       cmd.AddDebitor(5, matthias.Id);
 
 
-      uut.BillTransaction(cmd);
+      uut.BillTransactionCommandHandler().Handle(cmd);
 
       Assert.AreEqual(3, Context.Set<PartialTransaction>().Count());
       Assert.AreEqual(1, Context.Set<Transaction>().Count());
@@ -411,7 +411,7 @@ namespace Accounting.Tests
        TransactionId = transaction.Id 
       };
 
-      uut.RevertTransaction(cmd);
+      uut.RevertTransactionCommandHandler().Handle(cmd);
 
       // assert
 
@@ -448,7 +448,7 @@ namespace Accounting.Tests
       uut.OpenAccount("toeb2", "234");
 
       var cmd = new ListAccountsCommand();
-      uut.ListAccounts(cmd);
+      uut.ListAccountsQueryHandler().Handle(cmd);
 
       Assert.IsNotNull(cmd.Query);
       Assert.AreEqual(2, cmd.Query.Count());

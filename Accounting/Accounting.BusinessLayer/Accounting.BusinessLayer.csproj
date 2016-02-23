@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -42,6 +43,12 @@
   <ItemGroup>
     <Compile Include="AccountingApplication.cs" />
     <Compile Include="AccountingFacade.cs" />
+    <Compile Include="CommandHandlers\BillTransactionCommandHandler.cs" />
+    <Compile Include="CommandHandlers\CloseAccountCommandHandler.cs" />
+    <Compile Include="CommandHandlers\OpenAccountCommandHandler.cs" />
+    <Compile Include="CommandHandlers\RevertTransactionCommandHandler.cs" />
+    <Compile Include="CommandHandlers\UpdateAccountCommandHandler.cs" />
+    <Compile Include="CommandInterfaces.cs" />
     <Compile Include="Commands\CloseAccountCommand.cs" />
     <Compile Include="Commands\AddPartialTransactionCommand.cs" />
     <Compile Include="Commands\BillTransactionCommand.cs" />
@@ -53,6 +60,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\UpdateAccountCommand.cs" />
     <Compile Include="Commands\RevertTransactionCommand.cs" />
+    <Compile Include="QueryHandlers\ListAccountsQueryHandler.cs" />
+    <Compile Include="ValidatingHandlerDecorator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BusinessLayerDiagram.cd" />
@@ -63,6 +72,7 @@
       <Name>Accounting.Model</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
