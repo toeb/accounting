@@ -56,7 +56,7 @@ namespace Accounting.BusinessLayer.CommandHandlers
       }
       if (string.IsNullOrWhiteSpace(command.AccountNumber))
       {
-        errors.Add(new InvalidOperationException("acccount number may not be null or empty"));
+        errors.Add(new InvalidOperationException("account number may not be null or empty"));
       }
 
       if (errors.Count > 0) return false;
@@ -65,6 +65,18 @@ namespace Accounting.BusinessLayer.CommandHandlers
       if (UnitOfWork.GetRepository<Account>().Get(acc => acc.Name == command.AccountName || acc.Number == command.AccountNumber).Any())
       {
         errors.Add(new InvalidOperationException("account name or number is not unique"));
+      }
+      if (command.ParentAccountId.HasValue)
+      {
+        var parent = UnitOfWork.GetRepository<Account>().GetByID(command.ParentAccountId);
+        if (parent == null)
+        {
+          errors.Add(new InvalidOperationException("parent account does not exist"));
+        }
+        else if (!parent.IsActive)
+        {
+          errors.Add(new InvalidOperationException("parent account is inactive"));
+        }
       }
 
       return errors.Count == 0;

@@ -94,6 +94,43 @@ namespace Accounting.Tests
       uut.OpenAccountCommandHandler().Handle(new OpenAccountCommand() { AccountNumber = "123", AccountName = "asd" });
     }
 
+    [TestMethod]
+    [ExpectedException(typeof(InvalidOperationException), AllowDerivedTypes = true)]
+    public void OpenAccountShouldFailIfParentIsNotActive()
+    {
+      // arrange
+      var uut = Require<IAccountingFacade>();
+
+      var command = new OpenAccountCommand();
+      command.AccountName = "my_parent_account";
+      command.AccountShortname = "shortname";
+      command.AccountNumber = "1234";
+
+      uut.OpenAccountCommandHandler().Handle(command);
+
+      var closeCommand = new CloseAccountCommand()
+      {
+        AccountId = command.Account.Id,
+      };
+      uut.CloseAccountCommandHandler().Handle(closeCommand);
+
+      // check the output properties of the command
+      Assert.IsNotNull(command.Account);
+      Assert.AreNotEqual(0, command.Account.Id);
+
+      var acc = Context.Accounts.Find(command.Account.Id);
+      Assert.IsFalse(acc.IsActive);
+
+      var command2 = new OpenAccountCommand()
+      {
+        AccountName = "my_child_account",
+        AccountShortname = "child_shortname",
+        AccountNumber = "2345",
+        ParentAccountId = acc.Id
+      };
+      uut.OpenAccountCommandHandler().Handle(command2);
+    }
+
     #endregion
 
     #region UpdateAccountCommand

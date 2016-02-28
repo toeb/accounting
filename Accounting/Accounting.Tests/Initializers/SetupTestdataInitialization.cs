@@ -49,7 +49,7 @@ namespace Accounting.Tests.Initializers
           AccountName = name,
           AccountNumber = number,
           CategoryId = Context.AccountCategories.FirstOrDefault(x => x.Name == categoryname).Id,
-          ParentAccountId = (parent == null ? 0 : parent.Id)
+          ParentAccountId = (parent == null ? null : (int?)parent.Id)
         });
       }
     }
